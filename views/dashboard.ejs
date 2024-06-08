@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Dashboard</h1>
+    <nav>
+      <ul>
+        <li><a href="/tools/dashboard">Dashboard</a></li>
+        <li><a href="/tools/clients">Clients</a></li>
+        <li><a href="/tools/quotes">Quotes</a></li>
+        <li><a href="/tools/invoices">Invoices</a></li>
+        <li><a href="/tools/marketing">Marketing</a></li>
+        <li><a href="/tools/accounts">Accounts</a></li>
+        <li><a href="/tools/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <h2>Welcome, <%= user.username %>!</h2>
+    <p>This is your dashboard. Here you can see an overview of your activity.</p>
+  </main>
+</body>
+</html>

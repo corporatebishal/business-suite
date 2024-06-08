@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Clients</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Clients</h1>
+    <nav>
+      <ul>
+        <li><a href="/tools/dashboard">Dashboard</a></li>
+        <li><a href="/tools/clients">Clients</a></li>
+        <li><a href="/tools/quotes">Quotes</a></li>
+        <li><a href="/tools/invoices">Invoices</a></li>
+        <li><a href="/tools/marketing">Marketing</a></li>
+        <li><a href="/tools/accounts">Accounts</a></li>
+        <li><a href="/tools/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <h2>Clients</h2>
+    <a href="/tools/clients/add">Add New Client</a>
+    <ul>
+      <% clients.forEach(client => { %>
+        <li><a href="/tools/clients/<%= client.id %>"><%= client.name %></a></li>
+      <% }); %>
+    </ul>
+  </main>
+</body>
+</html>
