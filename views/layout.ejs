@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="/tools/dashboard" class="active">Dashboard</a></li>
+      <li>
+        <a href="javascript:void(0)">Clients</a>
+        <ul>
+          <li><a href="/tools/clients">View All Clients</a></li>
+          <li><a href="/tools/clients/add">Add New Client</a></li>
+        </ul>
+      </li>
+      <li><a href="/tools/quotes">Quotes</a></li>
+      <li><a href="/tools/invoices">Invoices</a></li>
+      <li><a href="/tools/marketing">Marketing</a></li>
+      <li><a href="/tools/accounts">Accounts</a></li>
+    </ul>
+  </nav>
+  <header>
+    <h1>Business Suite</h1>
+    <div class="user-info">
+      <div class="user-icon"><%= user ? user.username.charAt(0).toUpperCase() : 'G' %></div>
+      <div class="dropdown">
+        <% if (user) { %>
+          <div class="dropdown-content">
+            <div class="username"><%= user.username %></div>
+            <a href="/tools/profile">Update Profile</a>
+            <a href="/tools/logout">Logout</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section>
+      <%- body %>
+    </section>
+  </main>
+  <script src="/scripts.js"></script>
+</body>
+</html>

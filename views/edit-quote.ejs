@@ -1,0 +1,31 @@
+<h1>Edit Quote</h1>
+<form action="/tools/quotes/<%= quote._id %>/edit" method="post">
+  <div>
+    <label>Client:</label>
+    <select name="client" required>
+      <% clients.forEach(client => { %>
+        <option value="<%= client._id %>" <%= client._id.equals(quote.client._id) ? 'selected' : '' %>><%= client.name %></option>
+      <% }); %>
+    </select>
+  </div>
+  <div>
+    <label>Description:</label>
+    <input type="text" name="description" value="<%= quote.description %>" required>
+  </div>
+  <div>
+    <label>Amount:</label>
+    <input type="number" name="amount" value="<%= quote.amount %>" required>
+  </div>
+  <div>
+    <label>Status:</label>
+    <select name="status" required>
+      <option value="Pending" <%= quote.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+      <option value="Accepted" <%= quote.status === 'Accepted' ? 'selected' : '' %>>Accepted</option>
+      <option value="Rejected" <%= quote.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+    </select>
+  </div>
+  <div>
+    <button type="submit">Save Changes</button>
+  </div>
+</form>
+<a href="/tools/quotes/<%= quote._id %>">Cancel</a>

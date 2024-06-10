@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Quote</title>
+  <link rel="stylesheet" href="/styles.css"> <!-- Your custom styles -->
+  <style>
+    /* Add custom styles here if needed */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .form-container, .preview-container {
+      width: 48%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .preview-container {
+      overflow: auto;
+    }
+    .quote-preview {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h1>Add New Quote</h1>
+    <form id="quote-form" action="/tools/quotes/add" method="post">
+      <div>
+        <label>Client:</label>
+        <select name="client" id="client-select" required>
+          <option value="">Select Client</option>
+          <% clients.forEach(client => { %>
+            <option value="<%= client._id %>"><%= client.name %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div>
+        <label>Business Name:</label>
+        <input type="text" id="business-name" name="clientBusinessName" required readonly>
+      </div>
+      <div id="services-section">
+        <label>Services:</label>
+        <div id="services-list">
+          <% services.forEach(service => { %>
+            <div class="service-item">
+              <input type="checkbox" name="services[]" value="<%= service._id %>" data-name="<%= service.name %>" data-price="<%= service.price %>">
+              <%= service.name %> - $<%= service.price %>
+            </div>
+          <% }); %>
+        </div>
+        <button type="button" id="add-service-btn">Add New Service</button>
+      </div>
+      <div>
+        <label>Total Amount:</label>
+        <input type="number" id="total-amount" name="totalAmount" required>
+      </div>
+      <div>
+        <button type="submit">Add Quote</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="preview-container">
+    <h1>Quote Preview</h1>
+    <div class="quote-preview" id="quote-preview">
+      <!-- Preview will be dynamically generated here -->
+    </div>
+  </div>
+
+  <div id="new-service-modal" style="display: none;">
+    <h2>Add New Service</h2>
+    <div>
+      <label>Service Name:</label>
+      <input type="text" id="new-service-name">
+    </div>
+    <div>
+      <label>Price:</label>
+      <input type="number" id="new-service-price">
+    </div>
+    <button type="button" id="save-new-service-btn">Save Service</button>
+    <button type="button" id="cancel-new-service-btn">Cancel</button>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      function updatePreview() {
+        const client = $('#client-select option:selected').text();
+        const businessName = $('#business-name').val();
+        const services = [];
+        $('input[name="services[]"]:checked').each(function() {
+          const name = $(this).data('name');
+          const price = $(this).data('price');
+          services.push({ name, price });
+        });
+        const totalAmount = $('#total-amount').val();
+        
+        let previewHtml = `
+          <h2>Client: ${client}</h2>
+          <h3>Business Name: ${businessName}</h3>
+          <h4>Services:</h4>
+          <ul>
+        `;
+        services.forEach(service => {
+          previewHtml += `<li>${service.name} - $${service.price}</li>`;
+        });
+        previewHtml += `</ul><h4>Total Amount: $${totalAmount}</h4>`;
+        
+        $('#quote-preview').html(previewHtml);
+      }
+
+      $('#quote-form').on('change', 'input, select', updatePreview);
+      $('#quote-form').on('keyup', 'input', updatePreview);
+
+      $('#client-select').on('change', function() {
+        const clientId = this.value;
+        if (clientId) {
+          fetch(`/tools/quotes/client/${clientId}/business-name`)
+            .then(response => response.json())
+            .then(data => {
+              $('#business-name').val(data.businessName || 'Business Name Not Found');
+              updatePreview();
+            });
+        } else {
+          $('#business-name').val('');
+          updatePreview();
+        }
+      });
+
+      $('#add-service-btn').on('click', function() {
+        $('#new-service-modal').show();
+      });
+
+      $('#cancel-new-service-btn').on('click', function() {
+        $('#new-service-modal').hide();
+      });
+
+      $('#save-new-service-btn').on('click', function() {
+        const name = $('#new-service-name').val();
+        const price = $('#new-service-price').val();
+
+        if (!name || !price) {
+          alert("Please fill out both fields.");
+          return;
+        }
+
+        fetch('/tools/quotes/service/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, price })
+        })
+        .then(response => response.json())
+        .then(service => {
+          if (service.error) {
+            alert(service.error);
+          } else {
+            const serviceItem = `<div class="service-item">
+                                  <input type="checkbox" name="services[]" value="${service._id}" data-name="${service.name}" data-price="${service.price}">
+                                  ${service.name} - $${service.price}
+                                </div>`;
+            $('#services-list').append(serviceItem);
+            $('#new-service-modal').hide();
+            $('#new-service-name').val('');
+            $('#new-service-price').val('');
+            updatePreview();
+          }
+        })
+        .catch(error => {
+          console.error('Error adding service:', error);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

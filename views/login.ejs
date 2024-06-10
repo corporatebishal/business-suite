@@ -1,25 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Login</title>
-</head>
-<body>
-  <h1>Login</h1>
-  <% if (error) { %>
-    <p><%= error %></p>
-  <% } %>
-  <form action="/tools/login" method="post">
-    <div>
-      <label>Username:</label>
-      <input type="text" name="username">
-    </div>
-    <div>
-      <label>Password:</label>
-      <input type="password" name="password">
-    </div>
-    <div>
-      <button type="submit">Login</button>
-    </div>
-  </form>
-</body>
-</html>
+<form action="/tools/login" method="post">
+  <div>
+    <label>Username:</label>
+    <input type="text" name="username" value="admin" required>
+  </div>
+  <div>
+    <label>Password:</label>
+    <input type="password" name="password" value="password" required>
+  </div>
+  <div>
+    <button type="submit">Login</button>
+  </div>
+</form>

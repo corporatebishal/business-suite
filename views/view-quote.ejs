@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Quote</title>
+  <link rel="stylesheet" href="/styles.css"> <!-- Your custom styles -->
+  <style>
+    /* Add custom styles here if needed */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    .quote-details {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="quote-details">
+    <h1>Quote Details</h1>
+    <p><strong>Client:</strong> <%= quote.client.name %></p>
+    <p><strong>Business Name:</strong> <%= quote.clientBusinessName %></p>
+    <p><strong>Services:</strong></p>
+    <ul>
+      <% quote.services.forEach(service => { %>
+        <li><%= service.name %> - $<%= service.price %></li>
+      <% }); %>
+    </ul>
+    <p><strong>Total Amount:</strong> $<%= quote.totalAmount %></p>
+    <p><strong>Date:</strong> <%= new Date(quote.date).toLocaleDateString() %></p>
+    <p><strong>Status:</strong> <%= quote.status %></p>
+    <p><strong>Created By:</strong> <%= quote.user.username %></p>
+    <a href="/tools/quotes" class="back-btn">Back to Quotes</a>
+  </div>
+</body>
+</html>

@@ -1,47 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Add Client</title>
-  <link rel="stylesheet" type="text/css" href="/styles.css">
-</head>
-<body>
-  <header>
-    <h1>Add Client</h1>
-    <nav>
-      <ul>
-        <li><a href="/tools/dashboard">Dashboard</a></li>
-        <li><a href="/tools/clients">Clients</a></li>
-        <li><a href="/tools/quotes">Quotes</a></li>
-        <li><a href="/tools/invoices">Invoices</a></li>
-        <li><a href="/tools/marketing">Marketing</a></li>
-        <li><a href="/tools/accounts">Accounts</a></li>
-        <li><a href="/tools/logout">Logout</a></li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <h2>Add New Client</h2>
-    <form action="/tools/clients/add" method="post">
-      <div>
-        <label>Name:</label>
-        <input type="text" name="name" required>
-      </div>
-      <div>
-        <label>Email:</label>
-        <input type="email" name="email" required>
-      </div>
-      <div>
-        <label>Phone:</label>
-        <input type="text" name="phone" required>
-      </div>
-      <div>
-        <label>Address:</label>
-        <input type="text" name="address" required>
-      </div>
-      <div>
-        <button type="submit">Add Client</button>
-      </div>
-    </form>
-  </main>
-</body>
-</html>
+<h2>Add New Client</h2>
+<form action="/tools/clients/add" method="post">
+  <div>
+    <label>Name:</label>
+    <input type="text" name="name" required>
+  </div>
+  <div>
+    <label>Email:</label>
+    <input type="email" name="email" required>
+  </div>
+  <div>
+    <label>Phone:</label>
+    <input type="text" name="phone" required>
+  </div>
+  <div>
+    <label>Address:</label>
+    <input type="text" name="address" required>
+  </div>
+  <div>
+    <button type="submit">Add Client</button>
+  </div>
+</form>

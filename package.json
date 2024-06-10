@@ -11,14 +11,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
     "body-parser": "^1.19.0",
+    "connect-flash": "^0.1.1",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.17.1",
+    "mongoose": "^8.4.1",
+    "mysql2": "^2.2.5",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "express-session": "^1.17.1",
-    "connect-flash": "^0.1.1",
-    "sequelize": "^6.3.5",
-    "mysql2": "^2.2.5",
-    "ejs": "^3.1.6"
+    "puppeteer": "^22.10.0",
+    "sequelize": "^6.3.5"
   }
 }

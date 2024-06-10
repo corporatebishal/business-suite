@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotes</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="/styles.css"> <!-- Your custom styles -->
+  <style>
+    /* Add custom styles here if needed */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .action-buttons a {
+      margin-right: 10px;
+      color: white;
+      padding: 5px 10px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .view-quote {
+      background-color: #3498db;
+    }
+    .download-quote {
+      background-color: #2ecc71;
+    }
+    .resend-quote {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quotes</h1>
+  <a href="/tools/quotes/add" class="add-quote-btn">Add New Quote</a>
+  <table id="quotes-table" class="display">
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Business Name</th>
+        <th>Services</th>
+        <th>Total Amount</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Created By</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% quotes.forEach(quote => { %>
+        <tr>
+          <td><%= quote.client.name %></td>
+          <td><%= quote.clientBusinessName %></td>
+          <td>
+            <% quote.services.forEach(service => { %>
+              <div><%= service.name %> - $<%= service.price %></div>
+            <% }); %>
+          </td>
+          <td>$<%= quote.totalAmount %></td>
+          <td><%= new Date(quote.date).toLocaleDateString() %></td>
+          <td><%= quote.status %></td>
+          <td><%= quote.user.username %></td>
+          <td class="action-buttons">
+            <a href="/tools/quotes/view/<%= quote._id %>" class="view-quote">View</a>
+            <a href="/tools/quotes/download/<%= quote._id %>" class="download-quote">Download</a>
+            <a href="/tools/quotes/resend/<%= quote._id %>" class="resend-quote">Resend</a>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#quotes-table').DataTable();
+    });
+  </script>
+</body>
+</html>

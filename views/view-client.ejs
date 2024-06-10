@@ -1,30 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>View Client</title>
-  <link rel="stylesheet" type="text/css" href="/styles.css">
-</head>
-<body>
-  <header>
-    <h1>Client Details</h1>
-    <nav>
-      <ul>
-        <li><a href="/tools/dashboard">Dashboard</a></li>
-        <li><a href="/tools/clients">Clients</a></li>
-        <li><a href="/tools/quotes">Quotes</a></li>
-        <li><a href="/tools/invoices">Invoices</a></li>
-        <li><a href="/tools/marketing">Marketing</a></li>
-        <li><a href="/tools/accounts">Accounts</a></li>
-        <li><a href="/tools/logout">Logout</a></li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <h2>Client: <%= client.name %></h2>
-    <p>Email: <%= client.email %></p>
-    <p>Phone: <%= client.phone %></p>
-    <p>Address: <%= client.address %></p>
-    <a href="/tools/clients">Back to Clients</a>
-  </main>
-</body>
-</html>
+<h2>Client: <%= client.name %></h2>
+<p>Email: <%= client.email %></p>
+<p>Phone: <%= client.phone %></p>
+<p>Address: <%= client.address %></p>
+<a href="/tools/clients">Back to Clients</a>

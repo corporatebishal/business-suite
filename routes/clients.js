@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { Client } = require('../models/Client');
+const Client = require('../models/Client');
 
 // List clients
 router.get('/', async (req, res) => {
   if (req.isAuthenticated()) {
-    const clients = await Client.findAll();
-    res.render('clients', { user: req.user, clients: clients });
+    const clients = await Client.find();
+    res.render('clients', { title: 'Clients', user: req.user, clients: clients });
   } else {
     res.redirect('/tools');
   }
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // Add client form
 router.get('/add', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('add-client', { user: req.user });
+    res.render('add-client', { title: 'Add Client', user: req.user });
   } else {
     res.redirect('/tools');
   }
@@ -40,9 +40,9 @@ router.post('/add', async (req, res) => {
 // View client details
 router.get('/:id', async (req, res) => {
   if (req.isAuthenticated()) {
-    const client = await Client.findByPk(req.params.id);
+    const client = await Client.findById(req.params.id);
     if (client) {
-      res.render('view-client', { user: req.user, client: client });
+      res.render('view-client', { title: 'View Client', user: req.user, client: client });
     } else {
       res.send('Client not found');
     }
