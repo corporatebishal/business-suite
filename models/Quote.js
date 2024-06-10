@@ -15,7 +15,8 @@ const QuoteSchema = new Schema({
   company: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
   date: { type: Date, default: Date.now },
   status: { type: String, enum: ['Pending', 'Accepted', 'Rejected'], default: 'Pending' },
-  pdfPath: { type: String, required: true }
+  pdfPath: { type: String, required: true },
+  quoteNumber: { type: String, required: true } // Add this field
 });
 
 module.exports = mongoose.model('Quote', QuoteSchema);

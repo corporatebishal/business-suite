@@ -25,7 +25,11 @@ router.get('/:filename', async (req, res) => {
       return res.status(404).json({ err: 'No files exist' });
     }
 
-    bucket.openDownloadStreamByName(req.params.filename).pipe(res);
+    const readstream = bucket.openDownloadStreamByName(req.params.filename);
+    readstream.on('error', (err) => {
+      res.status(500).json({ err: 'An error occurred while fetching the file' });
+    });
+    readstream.pipe(res);
   } catch (err) {
     res.status(500).json({ err: 'An error occurred while fetching the file' });
   }

@@ -1,231 +1,346 @@
-  <style>
-    .form-container, .preview-container {
-      width: 45%;
-      background: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      float: left;
-    }
-    .preview-container {
-      overflow: auto;
-    }
-    .quote-preview {
-      width: 100%;
-    }
-    .service-item {
-      margin-bottom: 10px;
-    }
-    .service-item label {
-      margin-right: 10px;
-    }
-    .custom-price {
-      display: none;
-      border: none;
-      border-bottom: 1px solid #000;
-      box-shadow: 0 1px 0 0 #ccc;
-      width: auto;
-    }
-    .custom-price-toggle {
-      cursor: pointer;
-      color: blue;
-      text-decoration: underline;
-      margin-left: 10px;
-    }
-    #custom-total-toggle {
-      cursor: pointer;
-      color: blue;
-      text-decoration: underline;
-    }
-    #custom-total-amount {
-      display: none;
-      border: none;
-      border-bottom: 1px solid #000;
-      box-shadow: 0 1px 0 0 #ccc;
-      width: auto;
-    }
-    #new-service-modal {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      display: none;
-    }
-  </style>
-  <div class="form-container">
-    <h1>Add New Quote</h1>
-    <form id="quote-form" action="/tools/quotes/add" method="post">
-      <div>
-        <label>Client:</label>
-        <select name="client" id="client-select" required>
-          <option value="">Select Client</option>
-          <% clients.forEach(client => { %>
-            <option value="<%= client._id %>"><%= client.name %></option>
-          <% }); %>
-        </select>
+<style>
+  .form-container, .preview-container {
+    width: 45%;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    float: left;
+    margin-right: 1%;
+    height: -webkit-fill-available;
+  }
+  .preview-container {
+    overflow: auto;
+    font-size:75%;
+  }
+  .quote-preview header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+    width: auto;
+    margin-bottom: 20px;
+    left: unset;
+    top: unset;
+    padding: unset;
+    z-index: auto;
+    /* display: block; */
+    position: unset;
+}
+  .quote-preview header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    background-color:unset;
+    color:black;
+  }
+  .quote-preview .logo {
+    width: 100px;
+  }
+  .quote-preview .details, .quote-preview .address {
+    margin-bottom: 20px;
+  }
+  .quote-preview .details div, .quote-preview .address div {
+    margin-bottom: 5px;
+  }
+  .quote-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  .quote-preview table, th, td {
+    border: 1px solid #000;
+  }
+  .quote-preview th, td {
+    padding: 10px;
+    text-align: left;
+  }
+  .quote-preview th {
+    background-color: #f2f2f2;
+  }
+  .quote-preview .total {
+    text-align: right;
+  }
+  .quote-preview .footer {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .custom-price {
+    display: none;
+    border: none;
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #ccc;
+    width: auto;
+  }
+  .custom-price-toggle {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+    margin-left: 10px;
+  }
+  #custom-total-toggle {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+  }
+  #custom-total-amount {
+    display: none;
+    border: none;
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #ccc;
+    width: auto;
+  }
+  #new-service-modal {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: none;
+  }
+</style>
+<div class="form-container">
+  <h1>Add New Quote</h1>
+  <form id="quote-form" action="/tools/quotes/add" method="post">
+    <input type="hidden" name="quoteNumber" value="<%= newQuoteNumber %>">
+    <div>
+      <label>Client:</label>
+      <select name="client" id="client-select" required>
+        <option value="">Select Client</option>
+        <% clients.forEach(client => { %>
+          <option value="<%= client._id %>"><%= client.name %></option>
+        <% }); %>
+      </select>
+    </div>
+    <div>
+      <label>Business Name:</label>
+      <input type="text" id="business-name" name="clientBusinessName" required readonly>
+    </div>
+    <div>
+      <input type="hidden" id="client-address" name="clientAddress" value="">
+    </div>
+    <div id="services-section">
+      <label>Services:</label>
+      <div id="services-list">
+        <% services.forEach(service => { %>
+          <div class="service-item">
+            <input type="checkbox" name="services[]" value="<%= service._id %>" data-name="<%= service.name %>" data-price="<%= service.price %>">
+            <%= service.name %> - $<span class="service-price"><%= service.price %></span>
+            <span class="custom-price-toggle">Add custom price</span>
+            <input type="number" class="custom-price" name="customPrices[]" placeholder="Custom Price">
+          </div>
+        <% }); %>
       </div>
-      <div>
-        <label>Business Name:</label>
-        <input type="text" id="business-name" name="clientBusinessName" required readonly>
-      </div>
-      <div id="services-section">
-        <label>Services:</label>
-        <div id="services-list">
-          <% services.forEach(service => { %>
-            <div class="service-item">
-              <input type="checkbox" name="services[]" value="<%= service._id %>" data-name="<%= service.name %>" data-price="<%= service.price %>">
-              <%= service.name %> - $<span class="service-price"><%= service.price %></span>
-              <span class="custom-price-toggle">Add custom price</span>
-              <input type="number" class="custom-price" name="customPrices[]" placeholder="Custom Price">
-            </div>
-          <% }); %>
+      <button type="button" id="add-service-btn">Add New Service</button>
+    </div>
+    <div>
+      <label>Total Amount:</label>
+      <span id="total-amount-display">$0</span>
+      <span id="custom-total-toggle">Add custom total</span>
+      <input type="number" id="custom-total-amount" name="customTotalAmount" class="custom-price" placeholder="Custom Total">
+    </div>
+    <div>
+      <label><input type="checkbox" name="sendEmail" checked> Send an email to client once the quote is generated</label>
+    </div>
+    <div>
+      <button type="submit">Add Quote</button>
+    </div>
+  </form>
+</div>
+
+<div class="preview-container">
+  <h1>Quote Preview</h1>
+  <div class="quote-preview" id="quote-preview">
+    <!-- Preview will be dynamically generated here -->
+  </div>
+</div>
+
+<div id="new-service-modal">
+  <h2>Add New Service</h2>
+  <div>
+    <label>Service Name:</label>
+    <input type="text" id="new-service-name">
+  </div>
+  <div>
+    <label>Price:</label>
+    <input type="number" id="new-service-price">
+  </div>
+  <button type="button" id="save-new-service-btn">Save Service</button>
+  <button type="button" id="cancel-new-service-btn">Cancel</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+  $(document).ready(function() {
+    const businessDetails = <%- JSON.stringify(businessDetails) %>;
+    const paymentDetails = <%- JSON.stringify(paymentDetails) %>;
+    const quoteNumber = "<%= newQuoteNumber %>";
+
+    function updateTotalAmount() {
+      let total = 0;
+      $('input[name="services[]"]:checked').each(function() {
+        const price = $(this).siblings('.custom-price').val() || $(this).data('price');
+        total += parseFloat(price);
+      });
+      $('#total-amount-display').text(`$${total.toFixed(2)}`);
+      return total;
+    }
+
+    function updatePreview() {
+      const client = $('#client-select option:selected').text();
+      const businessName = $('#business-name').val();
+      const clientAddress = $('#client-address').val();
+      const services = [];
+      $('input[name="services[]"]:checked').each(function() {
+        const name = $(this).data('name');
+        const price = $(this).siblings('.custom-price').val() || $(this).data('price');
+        services.push({ name, price });
+      });
+      const totalAmount = $('#custom-total-amount').val() || updateTotalAmount();
+
+      let previewHtml = `
+        <header>
+          <div>
+            <img src="/tools/uploads/${businessDetails.businessLogo}" class="logo" alt="Business Logo">
+            <h2>Quote</h2>
+          </div>
+          <div>
+            <p>QUOTE No.: ${quoteNumber}</p>
+            <p>DATE: ${new Date().toLocaleDateString()}</p>
+          </div>
+        </header>
+        <div class="address">
+          <h3>To:</h3>
+          <div><strong>${client}</strong></div>
+          <div>${businessName}</div>
+          <div>${clientAddress}</div>
         </div>
-        <button type="button" id="add-service-btn">Add New Service</button>
-      </div>
-      <div>
-        <label>Total Amount:</label>
-        <span id="total-amount-display">$0</span>
-        <span id="custom-total-toggle">Add custom total</span>
-        <input type="number" id="custom-total-amount" name="customTotalAmount" class="custom-price" placeholder="Custom Total">
-      </div>
-      <div>
-        <button type="submit">Add Quote</button>
-      </div>
-    </form>
-  </div>
-
-  <div class="preview-container">
-    <h1>Quote Preview</h1>
-    <div class="quote-preview" id="quote-preview">
-      <!-- Preview will be dynamically generated here -->
-    </div>
-  </div>
-
-  <div id="new-service-modal">
-    <h2>Add New Service</h2>
-    <div>
-      <label>Service Name:</label>
-      <input type="text" id="new-service-name">
-    </div>
-    <div>
-      <label>Price:</label>
-      <input type="number" id="new-service-price">
-    </div>
-    <button type="button" id="save-new-service-btn">Save Service</button>
-    <button type="button" id="cancel-new-service-btn">Cancel</button>
-  </div>
-
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script>
-    $(document).ready(function() {
-      function updateTotalAmount() {
-        let total = 0;
-        $('input[name="services[]"]:checked').each(function() {
-          const price = $(this).siblings('.custom-price').val() || $(this).data('price');
-          total += parseFloat(price);
-        });
-        $('#total-amount-display').text(`$${total.toFixed(2)}`);
-        return total;
-      }
-
-      function updatePreview() {
-        const client = $('#client-select option:selected').text();
-        const businessName = $('#business-name').val();
-        const services = [];
-        $('input[name="services[]"]:checked').each(function() {
-          const name = $(this).data('name');
-          const price = $(this).siblings('.custom-price').val() || $(this).data('price');
-          services.push({ name, price });
-        });
-        const totalAmount = $('#custom-total-amount').val() || updateTotalAmount();
-        
-        let previewHtml = `
-          <h2>Client: ${client}</h2>
-          <h3>Business Name: ${businessName}</h3>
-          <h4>Services:</h4>
-          <ul>
+        <div class="details">
+          <h3>Billing Address:</h3>
+          <div>${businessDetails.billingAddress}</div>
+          <div>ABN: ${businessDetails.businessABN}</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Amount (AUD)</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      services.forEach((service) => {
+        previewHtml += `
+          <tr>
+            <td>${service.name}</td>
+            <td>1</td>
+            <td>$${parseFloat(service.price).toFixed(2)}</td>
+            <td>$${parseFloat(service.price).toFixed(2)}</td>
+          </tr>
         `;
-        services.forEach(service => {
-          previewHtml += `<li>${service.name} - $${service.price}</li>`;
-        });
-        previewHtml += `</ul><h4>Total Amount: $${totalAmount}</h4>`;
-        
-        $('#quote-preview').html(previewHtml);
+      });
+      previewHtml += `
+          </tbody>
+        </table>
+        <div class="total">
+          <p>Subtotal: $${parseFloat(totalAmount).toFixed(2)}</p>
+          <p>GST: $${(totalAmount * 0.1).toFixed(2)}</p>
+          <h3>Total: $${(totalAmount * 1.1).toFixed(2)}</h3>
+        </div>
+        <div class="footer">
+          <p>Make all cheques payable to:</p>
+          <p>${businessDetails.businessName}</p>
+          <p>BSB: ${paymentDetails.bsb}</p>
+          <p>Account Number: ${paymentDetails.accountNumber}</p>
+          <p>Bank Name: ${paymentDetails.bankName}</p>
+        </div>
+      `;
+
+      $('#quote-preview').html(previewHtml);
+    }
+
+    $('#quote-form').on('change', 'input, select', updatePreview);
+    $('#quote-form').on('keyup', 'input', updatePreview);
+
+    $('#client-select').on('change', function() {
+      const clientId = this.value;
+      if (clientId) {
+        fetch(`/tools/quotes/client/${clientId}/business-name`)
+          .then(response => response.json())
+          .then(data => {
+            $('#business-name').val(data.businessName || 'Business Name Not Found');
+            $('#client-address').val(data.address || '');
+            updatePreview();
+          });
+      } else {
+        $('#business-name').val('');
+        $('#client-address').val('');
+        updatePreview();
+      }
+    });
+
+    $('#add-service-btn').on('click', function() {
+      $('#new-service-modal').show();
+    });
+
+    $('#cancel-new-service-btn').on('click', function() {
+      $('#new-service-modal').hide();
+    });
+
+    $('#save-new-service-btn').on('click', function() {
+      const name = $('#new-service-name').val();
+      const price = $('#new-service-price').val();
+
+      if (!name || !price) {
+        alert("Please fill out both fields.");
+        return;
       }
 
-      $('#quote-form').on('change', 'input, select', updatePreview);
-      $('#quote-form').on('keyup', 'input', updatePreview);
-
-      $('#client-select').on('change', function() {
-        const clientId = this.value;
-        if (clientId) {
-          fetch(`/tools/quotes/client/${clientId}/business-name`)
-            .then(response => response.json())
-            .then(data => {
-              $('#business-name').val(data.businessName || 'Business Name Not Found');
-              updatePreview();
-            });
+      fetch('/tools/quotes/service/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, price })
+      })
+      .then(response => response.json())
+      .then(service => {
+        if (service.error) {
+          alert(service.error);
         } else {
-          $('#business-name').val('');
+          const serviceItem = `<div class="service-item">
+                                <input type="checkbox" name="services[]" value="${service._id}" data-name="${service.name}" data-price="${service.price}">
+                                ${service.name} - $<span class="service-price">${service.price}</span>
+                                <span class="custom-price-toggle">Add custom price</span>
+                                <input type="number" class="custom-price" name="customPrices[]" placeholder="Custom Price">
+                              </div>`;
+          $('#services-list').append(serviceItem);
+          $('#new-service-modal').hide();
+          $('#new-service-name').val('');
+          $('#new-service-price').val('');
           updatePreview();
         }
-      });
-
-      $('#add-service-btn').on('click', function() {
-        $('#new-service-modal').show();
-      });
-
-      $('#cancel-new-service-btn').on('click', function() {
-        $('#new-service-modal').hide();
-      });
-
-      $('#save-new-service-btn').on('click', function() {
-        const name = $('#new-service-name').val();
-        const price = $('#new-service-price').val();
-
-        if (!name || !price) {
-          alert("Please fill out both fields.");
-          return;
-        }
-
-        fetch('/tools/quotes/service/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name, price })
-        })
-        .then(response => response.json())
-        .then(service => {
-          if (service.error) {
-            alert(service.error);
-          } else {
-            const serviceItem = `<div class="service-item">
-                                  <input type="checkbox" name="services[]" value="${service._id}" data-name="${service.name}" data-price="${service.price}">
-                                  ${service.name} - $<span class="service-price">${service.price}</span>
-                                  <span class="custom-price-toggle">Add custom price</span>
-                                  <input type="number" class="custom-price" name="customPrices[]" placeholder="Custom Price">
-                                </div>`;
-            $('#services-list').append(serviceItem);
-            $('#new-service-modal').hide();
-            $('#new-service-name').val('');
-            $('#new-service-price').val('');
-            updatePreview();
-          }
-        })
-        .catch(error => {
-          console.error('Error adding service:', error);
-        });
-      });
-
-      $(document).on('click', '.custom-price-toggle', function() {
-        $(this).siblings('.custom-price').toggle().focus();
-      });
-
-      $('#custom-total-toggle').on('click', function() {
-        $('#custom-total-amount').toggle().focus();
+      })
+      .catch(error => {
+        console.error('Error adding service:', error);
       });
     });
-  </script>
+
+    $(document).on('click', '.custom-price-toggle', function() {
+      $(this).siblings('.custom-price').toggle().focus();
+    });
+
+    $('#custom-total-toggle').on('click', function() {
+      $('#custom-total-amount').toggle().focus();
+    });
+
+    updatePreview();
+  });
+</script>

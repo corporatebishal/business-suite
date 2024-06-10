@@ -1,16 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose'); // Add this line to import mongoose
+const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
+const oauth2Client = require('../config/oauth2');
 
 const Quote = require('../models/Quote');
 const Client = require('../models/Client');
 const Service = require('../models/Service');
 const User = require('../models/User');
-const BusinessDetails = require('../models/BusinessDetails'); // Import BusinessDetails
-const PaymentDetails = require('../models/PaymentDetails'); // Import PaymentDetails
+const BusinessDetails = require('../models/BusinessDetails');
+const PaymentDetails = require('../models/PaymentDetails');
 const ejs = require('ejs');
 const path = require('path');
 const puppeteer = require('puppeteer');
+
+// Helper function to generate the quote number
+function generateQuoteNumber(businessName, lastQuoteNumber) {
+  const initials = businessName.split(' ').map(word => word[0]).join('');
+  const lastNumber = lastQuoteNumber ? parseInt(lastQuoteNumber.replace(`QN${initials}`, '')) : 0;
+  return `QN${initials}${lastNumber + 1}`;
+}
 
 // List all quotes
 router.get('/', async (req, res) => {
@@ -27,15 +37,30 @@ router.get('/add', async (req, res) => {
   if (req.isAuthenticated()) {
     const clients = await Client.find({ company: req.user.company });
     const services = await Service.find({ company: req.user.company });
-    res.render('add-quote', { title: 'Add Quote', user: req.user, clients, services });
+    const businessDetails = await BusinessDetails.findOne({ user: req.user._id });
+    const paymentDetails = await PaymentDetails.findOne({ user: req.user._id });
+    const lastQuote = await Quote.findOne({ company: req.user.company }).sort({ date: -1 });
+
+    const newQuoteNumber = generateQuoteNumber(businessDetails.businessName, lastQuote ? lastQuote.quoteNumber : null);
+
+    res.render('add-quote', {
+      title: 'Add Quote',
+      user: req.user,
+      clients,
+      services,
+      businessDetails,
+      paymentDetails,
+      newQuoteNumber
+    });
   } else {
     res.redirect('/tools');
   }
 });
 
+// Handle adding a new quote
 router.post('/add', async (req, res) => {
   if (req.isAuthenticated()) {
-    const { client, clientBusinessName, services, customPrices, totalAmount, customTotalAmount } = req.body;
+    const { client, clientBusinessName, services, customPrices, totalAmount, customTotalAmount, quoteNumber, sendEmail } = req.body;
 
     try {
       // Fetch service details from the database
@@ -58,7 +83,8 @@ router.post('/add', async (req, res) => {
         totalAmount: total,
         user: req.user._id,
         company: req.user.company,
-        pdfPath
+        pdfPath,
+        quoteNumber
       });
       await newQuote.save();
 
@@ -86,6 +112,66 @@ router.post('/add', async (req, res) => {
 
       await browser.close();
 
+      // Send email if requested
+      if (sendEmail) {
+        const user = await User.findById(req.user._id);
+        const clientDetails = await Client.findById(client);
+
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          process.env.GOOGLE_REDIRECT_URL
+        );
+
+        oauth2Client.setCredentials({
+          access_token: user.oauthTokens.accessToken,
+          refresh_token: user.oauthTokens.refreshToken,
+          expiry_date: user.oauthTokens.expiryDate
+        });
+
+        oauth2Client.on('tokens', (tokens) => {
+          if (tokens.refresh_token) {
+            user.oauthTokens.refreshToken = tokens.refresh_token;
+            user.oauthTokens.accessToken = tokens.access_token;
+            user.oauthTokens.expiryDate = tokens.expiry_date;
+            user.save();
+          }
+        });
+
+        const transport = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            type: 'OAuth2',
+            user: user.email,
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            refreshToken: user.oauthTokens.refreshToken,
+            accessToken: user.oauthTokens.accessToken
+          }
+        });
+
+        const mailOptions = {
+          from: user.email,
+          to: clientDetails.email,
+          subject: `Quote ${quoteNumber}`,
+          text: 'Please find the attached quote.',
+          attachments: [
+            {
+              filename: 'quote.pdf',
+              path: fullPdfPath
+            }
+          ]
+        };
+
+        transport.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error('Error sending email:', err);
+          } else {
+            console.log('Email sent:', info.response);
+          }
+        });
+      }
+
       res.redirect('/tools/quotes');
     } catch (err) {
       console.error('Error creating quote:', err);
@@ -96,11 +182,34 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// Fetch client business name
+// Delete a quote
+router.post('/delete/:id', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const quote = await Quote.findById(req.params.id);
+      if (!quote) {
+        return res.status(404).send('Quote not found');
+      }
+      await Quote.findByIdAndDelete(req.params.id);
+      req.flash('success_msg', 'Quote deleted successfully');
+      res.redirect('/tools/quotes');
+    } catch (err) {
+      console.error('Error deleting quote:', err);
+      res.status(500).send('Server Error');
+    }
+  } else {
+    res.redirect('/tools');
+  }
+});
+
+// Fetch client business name and address
 router.get('/client/:id/business-name', async (req, res) => {
   if (req.isAuthenticated()) {
     const client = await Client.findById(req.params.id);
-    res.json({ businessName: client ? client.businessName : '' });
+    res.json({
+      businessName: client ? client.businessName : '',
+      address: client ? client.address : ''
+    });
   } else {
     res.sendStatus(401);
   }

@@ -1,13 +1,31 @@
-<form action="/tools/login" method="post">
-  <div>
-    <label>Username:</label>
-    <input type="text" name="username" value="admin" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <form action="/tools/login" method="post">
+    <div>
+      <label>Username:</label>
+      <input type="text" name="username" required>
+    </div>
+    <div>
+      <label>Password:</label>
+      <input type="password" name="password" required>
+    </div>
+    <div>
+      <button type="submit">Login</button>
+    </div>
+  </form>
+  <div id="g_id_onload"
+       data-client_id="2250695898426-l017hi10v1sframq24q38csa6csbdo1d.apps.googleusercontent.com       "
+       data-auto_select="true"
+       data-login_uri="http://localhost:8081/auth/google/callback"
+       data-auto_prompt="false">
   </div>
-  <div>
-    <label>Password:</label>
-    <input type="password" name="password" value="password" required>
-  </div>
-  <div>
-    <button type="submit">Login</button>
-  </div>
-</form>
+  <div class="g_id_signin" data-type="standard"></div>
+</body>
+</html>

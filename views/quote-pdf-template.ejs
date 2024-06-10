@@ -53,11 +53,11 @@
 <body>
   <header>
     <div>
-      <img src="<%= businessDetails.businessLogo %>" class="logo" alt="Business Logo">
+      <img src="http://localhost:8081/tools/uploads/<%= businessDetails.businessLogo %>" class="logo" alt="Business Logo">
       <h2>Quote</h2>
     </div>
     <div>
-      <p>INVOICE No.: <%= quote._id %></p>
+      <p>QUOTE No.: <%= quote.quoteNumber %></p> <!-- Update here -->
       <p>DATE: <%= new Date(quote.date).toLocaleDateString() %></p>
     </div>
   </header>
