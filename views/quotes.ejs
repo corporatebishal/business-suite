@@ -66,7 +66,7 @@
           <td><%= quote.user.username %></td>
           <td class="action-buttons">
             <a href="/tools/quotes/view/<%= quote._id %>" class="view-quote">View</a>
-            <a href="/tools/quotes/download/<%= quote._id %>" class="download-quote">Download</a>
+            <a href="<%= quote.pdfPath %>" class="download-quote" target="_blank">Download</a>
             <a href="/tools/quotes/resend/<%= quote._id %>" class="resend-quote">Resend</a>
           </td>
         </tr>

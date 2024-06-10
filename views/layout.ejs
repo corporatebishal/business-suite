@@ -1,8 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
   <link rel="stylesheet" type="text/css" href="/styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: calc(100% - 250px);
+      left: 250px;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      margin: 0;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .user-info .user-icon {
+      width: 30px;
+      height: 30px;
+      background-color: #555;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .user-info .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .user-info .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 150px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+    .user-info .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+    .user-info .dropdown-content a:hover {
+      background-color: #ddd;
+    }
+    .user-info:hover .dropdown-content {
+      display: block;
+    }
+    nav {
+      width: 250px;
+      background-color: #333;
+      color: white;
+      height: 100vh;
+      padding-top: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      overflow-y: auto;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    nav ul li {
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      display: block;
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+    }
+    nav ul li a:hover, nav ul li a.active {
+      background-color: #575757;
+    }
+    nav ul li ul {
+      display: none;
+      list-style: none;
+      padding-left: 20px;
+    }
+    nav ul li.active > ul, nav ul li ul.active {
+      display: block;
+    }
+    nav ul li ul li a {
+      padding: 10px 20px;
+    }
+    main {
+      margin-left: 250px;
+      padding: 20px;
+      width: calc(100% - 250px);
+      overflow-y: auto;
+      margin-top: 60px; /* To avoid overlap with header */
+    }
+    form div {
+      margin-bottom: 15px;
+    }
+    form label {
+      display: block;
+    }
+    form input[type="text"],
+    form input[type="password"],
+    form input[type="email"],
+    form input[type="file"],
+    form input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    form button {
+      padding: 10px 15px;
+      background-color: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    form button:hover {
+      background-color: #575757;
+    }
+    .form-section {
+      display: none;
+    }
+    .form-section.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
   <nav>
@@ -19,27 +169,30 @@
       <li><a href="/tools/invoices">Invoices</a></li>
       <li><a href="/tools/marketing">Marketing</a></li>
       <li><a href="/tools/accounts">Accounts</a></li>
+      <li>
+        <a href="javascript:void(0)">Business Settings</a>
+        <ul>
+          <li><a href="/tools/business-details">Business Details</a></li>
+          <li><a href="/tools/payment-details">Payment Details</a></li>
+        </ul>
+      </li>
     </ul>
   </nav>
   <header>
     <h1>Business Suite</h1>
     <div class="user-info">
-      <div class="user-icon"><%= user ? user.username.charAt(0).toUpperCase() : 'G' %></div>
+      <div class="user-icon"><%= user.username.charAt(0).toUpperCase() %></div>
       <div class="dropdown">
-        <% if (user) { %>
-          <div class="dropdown-content">
-            <div class="username"><%= user.username %></div>
-            <a href="/tools/profile">Update Profile</a>
-            <a href="/tools/logout">Logout</a>
-          </div>
-        <% } %>
+        <span><%= user.username %></span>
+        <div class="dropdown-content">
+          <a href="/tools/profile">Update Profile</a>
+          <a href="/tools/logout">Logout</a>
+        </div>
       </div>
     </div>
   </header>
   <main>
-    <section>
-      <%- body %>
-    </section>
+    <%- body %>
   </main>
   <script src="/scripts.js"></script>
 </body>

@@ -7,7 +7,6 @@ body {
   height: 100vh;
   overflow: hidden;
 }
-
 header {
   background-color: #333;
   color: white;
@@ -21,18 +20,15 @@ header {
   top: 0;
   z-index: 1000;
 }
-
 header h1 {
   margin: 0;
 }
-
-header .user-info {
+.user-info {
   display: flex;
   align-items: center;
   position: relative;
 }
-
-header .user-info .user-icon {
+.user-info .user-icon {
   width: 30px;
   height: 30px;
   background-color: #555;
@@ -45,13 +41,11 @@ header .user-info .user-icon {
   margin-right: 10px;
   cursor: pointer;
 }
-
-header .user-info .dropdown {
+.user-info .dropdown {
   position: relative;
   display: inline-block;
 }
-
-header .user-info .dropdown-content {
+.user-info .dropdown-content {
   display: none;
   position: absolute;
   right: 0;
@@ -61,105 +55,96 @@ header .user-info .dropdown-content {
   z-index: 1;
 }
 
-header .user-info .dropdown-content a {
+
+
+.user-info .dropdown-content a, .user-info .dropdown-content span{
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
-
-header .user-info .dropdown-content a:hover {
+.user-info .dropdown-content a:hover {
   background-color: #ddd;
 }
-
-header .user-info .dropdown:hover .dropdown-content {
+.user-info:hover .dropdown-content {
   display: block;
 }
 
-header .user-info .dropdown-content .username {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-nav {
-  width: 250px;
-  background-color: #333;
-  color: white;
-  height: 100vh;
-  padding-top: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  overflow-y: auto;
-}
-
-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-nav ul li {
-  margin: 0;
-  padding: 0;
-}
-
-nav ul li a {
-  display: block;
-  padding: 10px 20px;
-  color: white;
-  text-decoration: none;
-}
-
-nav ul li a:hover, nav ul li a.active {
-  background-color: #575757;
-}
-
-nav ul li ul {
-  display: none;
-  list-style: none;
-  padding-left: 20px;
-}
-
-nav ul li.active > ul,nav ul li ul.active {
-  display: block;
-}
-nav ul li ul li a {
-  padding: 10px 20px;
-}
-
-main {
-  margin-left: 250px;
-  padding: 20px;
-  width: calc(100% - 250px);
-  overflow-y: auto;
-  margin-top: 60px; /* To avoid overlap with header */
-}
-
-form div {
-  margin-bottom: 15px;
-}
-
-form label {
-  display: block;
-}
-
-form input[type="text"],
-form input[type="password"],
-form input[type="email"] {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-}
-
-form button {
-  padding: 10px 15px;
-  background-color: #333;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-form button:hover {
-  background-color: #575757;
-}
+ nav {
+      width: 250px;
+      background-color: #333;
+      color: white;
+      height: 100vh;
+      padding-top: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      overflow-y: auto;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    nav ul li {
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      display: block;
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+    }
+    nav ul li a:hover, nav ul li a.active {
+      background-color: #575757;
+    }
+    nav ul li ul {
+      display: none;
+      list-style: none;
+      padding-left: 20px;
+    }
+    nav ul li.active > ul, nav ul li ul.active {
+      display: block;
+    }
+    nav ul li ul li a {
+      padding: 10px 20px;
+    }
+    main {
+      margin-left: 250px;
+      padding: 20px;
+      width: calc(100% - 250px);
+      overflow-y: auto;
+      margin-top: 60px; /* To avoid overlap with header */
+    }
+    form div {
+      margin-bottom: 15px;
+    }
+    form label {
+      display: block;
+    }
+    form input[type="text"],
+    form input[type="password"],
+    form input[type="email"],
+    form input[type="file"],
+    form input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    form button {
+      padding: 10px 15px;
+      background-color: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    form button:hover {
+      background-color: #575757;
+    }
+    .form-section {
+      display: none;
+    }
+    .form-section.active {
+      display: block;
+    }

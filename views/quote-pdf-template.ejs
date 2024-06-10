@@ -1,73 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quote PDF</title>
+  <title>Quote</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-    }
-    .container {
+      margin: 0;
       padding: 20px;
     }
-    .header {
-      text-align: center;
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #000;
+      padding-bottom: 10px;
       margin-bottom: 20px;
     }
-    .details {
+    .logo {
+      width: 150px;
+    }
+    .details, .address {
       margin-bottom: 20px;
     }
-    .services {
-      margin-bottom: 20px;
+    .details div, .address div {
+      margin-bottom: 5px;
     }
-    .services table {
+    table {
       width: 100%;
       border-collapse: collapse;
+      margin-bottom: 20px;
     }
-    .services th, .services td {
+    table, th, td {
       border: 1px solid #000;
-      padding: 8px;
+    }
+    th, td {
+      padding: 10px;
       text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
     }
     .total {
       text-align: right;
-      font-size: 1.2em;
+    }
+    .footer {
+      text-align: center;
       margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Quote</h1>
+  <header>
+    <div>
+      <img src="<%= businessDetails.businessLogo %>" class="logo" alt="Business Logo">
+      <h2>Quote</h2>
     </div>
-    <div class="details">
-      <p><strong>Client:</strong> <%= client.name %></p>
-      <p><strong>Business Name:</strong> <%= clientBusinessName %></p>
+    <div>
+      <p>INVOICE No.: <%= quote._id %></p>
+      <p>DATE: <%= new Date(quote.date).toLocaleDateString() %></p>
     </div>
-    <div class="services">
-      <h2>Services</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Service</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% services.forEach(service => { %>
-            <tr>
-              <td><%= service.name %></td>
-              <td>$<%= service.price %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </div>
-    <div class="total">
-      <p><strong>Total Amount:</strong> $<%= totalAmount %></p>
-    </div>
+  </header>
+
+  <div class="address">
+    <h3>To:</h3>
+    <div><strong><%= quote.client.name %></strong></div>
+    <div><%= quote.clientBusinessName %></div>
+    <div><%= client.address %></div>
+  </div>
+
+  <div class="details">
+    <h3>Billing Address:</h3>
+    <div><%= businessDetails.billingAddress %></div>
+    <div>ABN: <%= businessDetails.businessABN %></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Quantity</th>
+        <th>Unit Price</th>
+        <th>Amount (AUD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% quote.services.forEach((service, index) => { %>
+        <tr>
+          <td><%= service.name %></td>
+          <td>1</td>
+          <td>$<%= service.price.toFixed(2) %></td>
+          <td>$<%= service.price.toFixed(2) %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <div class="total">
+    <p>Subtotal: $<%= quote.totalAmount.toFixed(2) %></p>
+    <p>GST: $<%= (quote.totalAmount * 0.1).toFixed(2) %></p>
+    <h3>Total: $<%= (quote.totalAmount * 1.1).toFixed(2) %></h3>
+  </div>
+
+  <div class="footer">
+    <p>Make all cheques payable to:</p>
+    <p><%= businessDetails.businessName %></p>
+    <p>BSB: <%= paymentDetails.bsb %></p>
+    <p>Account Number: <%= paymentDetails.accountNumber %></p>
+    <p>Bank Name: <%= paymentDetails.bankName %></p>
   </div>
 </body>
 </html>

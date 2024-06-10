@@ -23,17 +23,26 @@ router.get('/add', (req, res) => {
 
 // Handle add client form submission
 router.post('/add', async (req, res) => {
-  if (req.isAuthenticated()) {
-    try {
-      const { name, email, phone, address } = req.body;
-      await Client.create({ name, email, phone, address });
-      res.redirect('/tools/clients');
-    } catch (err) {
-      console.error(err);
-      res.send('Error adding client');
-    }
-  } else {
-    res.redirect('/tools');
+  const { name, businessName, email, phone, address, suburb } = req.body;
+
+  try {
+    const newClient = new Client({
+      name,
+      businessName,
+      email,
+      phone,
+      address,
+      suburb,
+      user: req.user._id,  // Link to the logged-in user
+      company: req.user.company  // Link to the user's company
+    });
+
+    await newClient.save();
+    res.redirect('/tools/clients');
+  } catch (err) {
+    console.error('Error adding client:', err);
+    req.flash('error', 'Error adding client');
+    res.redirect('/tools/clients/add');
   }
 });
 

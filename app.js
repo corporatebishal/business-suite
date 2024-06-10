@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -10,6 +11,8 @@ const User = require('./models/User');
 const clientsRouter = require('./routes/clients');
 const quotesRouter = require('./routes/quotes');
 const expressLayouts = require('express-ejs-layouts');
+const settingsRouter = require('./routes/settings'); // Add this line
+const uploadsRouter = require('./routes/uploads'); // Add this line
 
 const app = express();
 const port = 8081;
@@ -111,6 +114,10 @@ app.use('/tools/clients', clientsRouter);
 
 // Quotes routes
 app.use('/tools/quotes', quotesRouter);
+
+app.use('/tools', settingsRouter); // Add this line
+app.use('/tools/uploads', uploadsRouter); // Add this line
+
 
 // Start the server
 app.listen(port, () => {

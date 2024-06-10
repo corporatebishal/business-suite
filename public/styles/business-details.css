@@ -1,0 +1,78 @@
+/* Styles specific to the business-details page */
+.business-details-page nav {
+    /* Styles for nav within business-details page */
+    background-color: #333;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+  }
+  
+  .business-details-page nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .business-details-page nav ul li {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .business-details-page nav ul li a {
+    display: block;
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .business-details-page nav ul li a:hover,
+  .business-details-page nav ul li a.active {
+    background-color: #575757;
+  }
+  
+  .business-details-page main {
+    margin-left: 250px;
+    padding: 20px;
+  }
+  
+  .business-details-page .alert-success {
+    color: green;
+  }
+  
+  .business-details-page form div {
+    margin-bottom: 15px;
+  }
+  
+  .business-details-page form label {
+    display: block;
+  }
+  
+  .business-details-page form input[type="text"],
+  .business-details-page form input[type="password"],
+  .business-details-page form input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .business-details-page form button {
+    padding: 10px 15px;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .business-details-page form button:hover {
+    background-color: #575757;
+  }
+  
+  .business-details-page .business-logo {
+    display: block;
+    margin-bottom: 15px;
+  }
+  

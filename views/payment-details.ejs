@@ -1,0 +1,57 @@
+    <style>
+        .payment-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .payment-section h2 {
+            margin-top: 0;
+            }
+
+            .alert-success {
+            color: green;
+            }
+            form div {
+            margin-bottom: 15px;
+            }
+
+            form label {
+            display: block;
+            }
+
+    </style>
+    <h1>Payment Details</h1>
+    <% if (success_msg) { %>
+      <div class="alert alert-success"><%= success_msg %></div>
+    <% } %>
+    <form action="/tools/payment-details" method="POST">
+      <div class="payment-section">
+        <h2>Credit Card</h2>
+        <p>Coming Soon</p>
+      </div>
+      <div class="payment-section">
+        <h2>Bank Details</h2>
+        <div>
+          <label for="bsb">BSB Number:</label>
+          <input type="text" name="bsb" value="<%= paymentDetails ? paymentDetails.bsb : '' %>" required>
+        </div>
+        <div>
+          <label for="accountNumber">Account Number:</label>
+          <input type="text" name="accountNumber" value="<%= paymentDetails ? paymentDetails.accountNumber : '' %>" required>
+        </div>
+      </div>
+      <div class="payment-section">
+        <h2>BPay Details</h2>
+        <div>
+          <label for="paymentBSB">Biller Code:</label>
+          <input type="text" name="paymentBSB" value="<%= paymentDetails ? paymentDetails.paymentBSB : '' %>" required>
+        </div>
+        <div>
+          <label for="referenceNumber">Ref:</label>
+          <input type="text" name="referenceNumber" value="<%= paymentDetails ? paymentDetails.referenceNumber : '' %>" required>
+        </div>
+      </div>
+      <button type="submit">Update Payment Details</button>
+    </form>

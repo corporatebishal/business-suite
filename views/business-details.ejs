@@ -1,0 +1,42 @@
+    <h1>Business Details</h1>
+    <% if (success_msg) { %>
+      <div class="alert alert-success"><%= success_msg %></div>
+    <% } %>
+    <form action="/tools/business-details" method="POST" enctype="multipart/form-data">
+      <div>
+        <label for="businessABN">Business ABN:</label>
+        <input type="text" name="businessABN" value="<%= businessDetails ? businessDetails.businessABN : '' %>" required>
+      </div>
+      <div>
+        <label for="businessName">Business Name:</label>
+        <input type="text" name="businessName" value="<%= businessDetails ? businessDetails.businessName : '' %>" required>
+      </div>
+      <div>
+        <label for="businessAddress">Business Address:</label>
+        <input type="text" name="businessAddress" value="<%= businessDetails ? businessDetails.businessAddress : '' %>" required>
+      </div>
+      <div>
+        <label for="sameAddress">Billing Address same as Business Address:</label>
+        <input type="checkbox" name="sameAddress" <%= businessDetails && businessDetails.businessAddress === businessDetails.billingAddress ? 'checked' : '' %>>
+      </div>
+      <div>
+        <label for="billingAddress">Billing Address:</label>
+        <input type="text" name="billingAddress" value="<%= businessDetails ? businessDetails.billingAddress : '' %>">
+      </div>
+      <div>
+        <label for="businessLogo">Business Logo:</label>
+        <% if (businessDetails && businessDetails.businessLogo) { %>
+          <div>
+            <img src="/tools/uploads/<%= businessDetails.businessLogo %>" alt="Business Logo" width="100" class="business-logo">
+            <input type="hidden" name="existingLogo" value="<%= businessDetails.businessLogo %>">
+          </div>
+          <div>
+            <label for="replaceLogo">Replace Logo:</label>
+            <input type="file" name="businessLogo">
+          </div>
+        <% } else { %>
+          <input type="file" name="businessLogo">
+        <% } %>
+      </div>
+      <button type="submit">Update Business Details</button>
+    </form>
