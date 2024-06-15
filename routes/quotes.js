@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
-const { google } = require('googleapis');
-const oauth2Client = require('../config/oauth2');
+const ejs = require('ejs');
+const path = require('path');
+const puppeteer = require('puppeteer');
+const crypto = require('crypto');
 
 const Quote = require('../models/Quote');
 const Client = require('../models/Client');
@@ -11,14 +13,22 @@ const Service = require('../models/Service');
 const User = require('../models/User');
 const BusinessDetails = require('../models/BusinessDetails');
 const PaymentDetails = require('../models/PaymentDetails');
-const ejs = require('ejs');
-const path = require('path');
-const puppeteer = require('puppeteer');
+
+// Setup Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  host: 'smtp.dreamhost.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'quotes@bishal.au',
+    pass: 'sia@1303#',
+  },
+});
 
 // Helper function to generate the quote number
 function generateQuoteNumber(businessName, lastQuoteNumber) {
   const initials = businessName.split(' ').map(word => word[0]).join('');
-  const lastNumber = lastQuoteNumber ? parseInt(lastQuoteNumber.replace(`QN${initials}`, '')) : 0;
+  const lastNumber = lastQuoteNumber ? parseInt(lastQuoteNumber.replace(/^\D+/g, '')) : 0;
   return `QN${initials}${lastNumber + 1}`;
 }
 
@@ -76,6 +86,8 @@ router.post('/add', async (req, res) => {
 
       const pdfPath = `/quotes/${new mongoose.Types.ObjectId()}.pdf`;
 
+      const uniqueToken = crypto.randomBytes(16).toString('hex');
+
       const newQuote = new Quote({
         client,
         clientBusinessName,
@@ -84,7 +96,8 @@ router.post('/add', async (req, res) => {
         user: req.user._id,
         company: req.user.company,
         pdfPath,
-        quoteNumber
+        quoteNumber,
+        uniqueToken
       });
       await newQuote.save();
 
@@ -112,60 +125,25 @@ router.post('/add', async (req, res) => {
 
       await browser.close();
 
-      // Send email if requested
       if (sendEmail) {
-        const user = await User.findById(req.user._id);
         const clientDetails = await Client.findById(client);
-
-        const oauth2Client = new google.auth.OAuth2(
-          process.env.GOOGLE_CLIENT_ID,
-          process.env.GOOGLE_CLIENT_SECRET,
-          process.env.GOOGLE_REDIRECT_URL
-        );
-
-        oauth2Client.setCredentials({
-          access_token: user.oauthTokens.accessToken,
-          refresh_token: user.oauthTokens.refreshToken,
-          expiry_date: user.oauthTokens.expiryDate
-        });
-
-        oauth2Client.on('tokens', (tokens) => {
-          if (tokens.refresh_token) {
-            user.oauthTokens.refreshToken = tokens.refresh_token;
-            user.oauthTokens.accessToken = tokens.access_token;
-            user.oauthTokens.expiryDate = tokens.expiry_date;
-            user.save();
-          }
-        });
-
-        const transport = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            type: 'OAuth2',
-            user: user.email,
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            refreshToken: user.oauthTokens.refreshToken,
-            accessToken: user.oauthTokens.accessToken
-          }
+        const emailContent = await ejs.renderFile(path.join(__dirname, '..', 'views', 'quote-email-template.ejs'), {
+          clientName: clientDetails.name,
+          businessName: businessDetails.businessName,
+          quoteLink: `http://localhost:8081/tools/quotes/view-token/${newQuote.uniqueToken}`,
+          acceptLink: `http://localhost:8081/tools/quotes/accept-token/${newQuote.uniqueToken}`
         });
 
         const mailOptions = {
-          from: user.email,
+          from: 'quotes@bishal.au',
           to: clientDetails.email,
-          subject: `Quote ${quoteNumber}`,
-          text: 'Please find the attached quote.',
-          attachments: [
-            {
-              filename: 'quote.pdf',
-              path: fullPdfPath
-            }
-          ]
+          subject: `RE: Quote received from ${businessDetails.businessName}`,
+          html: emailContent
         };
 
-        transport.sendMail(mailOptions, (err, info) => {
-          if (err) {
-            console.error('Error sending email:', err);
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Error sending email:', error);
           } else {
             console.log('Email sent:', info.response);
           }
@@ -179,6 +157,153 @@ router.post('/add', async (req, res) => {
     }
   } else {
     res.redirect('/tools');
+  }
+});
+
+// View a quote by ID
+router.get('/view/:id', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const quote = await Quote.findById(req.params.id).populate('client').populate('user');
+      if (!quote) {
+        return res.status(404).send('Quote not found');
+      }
+
+      const businessDetails = await BusinessDetails.findOne({ user: quote.user._id });
+      const paymentDetails = await PaymentDetails.findOne({ user: quote.user._id });
+
+      res.render('view-quote', {
+        title: 'View Quote',
+        quote,
+        client: await Client.findById(quote.client),
+        businessDetails,
+        paymentDetails
+      });
+    } catch (err) {
+      console.error('Error viewing quote:', err);
+      res.status(500).send('Server Error');
+    }
+  } else {
+    res.redirect('/tools');
+  }
+});
+
+// View a quote by token
+router.get('/view-token/:token', async (req, res) => {
+  try {
+    const quote = await Quote.findOne({ uniqueToken: req.params.token }).populate('client').populate('user');
+    if (!quote) {
+      return res.status(404).send('Quote not found');
+    }
+
+    const businessDetails = await BusinessDetails.findOne({ user: quote.user._id });
+    const paymentDetails = await PaymentDetails.findOne({ user: quote.user._id });
+
+    res.render('view-quote-public', {
+      layout: 'layout-public',
+      title: 'View Quote',
+      quote,
+      client: await Client.findById(quote.client),
+      businessDetails,
+      paymentDetails
+    });
+  } catch (err) {
+    console.error('Error viewing quote:', err);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Handle quote acceptance without login
+router.get('/accept-token/:token', async (req, res) => {
+  try {
+    const quote = await Quote.findOne({ uniqueToken: req.params.token });
+    if (!quote) {
+      return res.status(404).send('Quote not found');
+    }
+
+    quote.status = 'Accepted';
+    await quote.save();
+
+    // Notify client
+    const client = await Client.findById(quote.client);
+    const user = await User.findById(quote.user);
+    const businessDetails = await BusinessDetails.findOne({ user: quote.user });
+
+    const clientEmailContent = await ejs.renderFile(path.join(__dirname, '..', 'views', 'quote-accepted-client.ejs'), {
+      clientName: client.name,
+      businessName: businessDetails.businessName,
+      quoteLink: `http://localhost:8081/tools/quotes/view-token/${quote.uniqueToken}`
+    });
+
+    const clientMailOptions = {
+      from: 'quotes@bishal.au',
+      to: client.email,
+      subject: `Thank you for accepting the quote from ${businessDetails.businessName}`,
+      html: clientEmailContent
+    };
+
+    transporter.sendMail(clientMailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email to client:', error);
+      } else {
+        console.log('Client email sent:', info.response);
+      }
+    });
+
+    // Notify user
+    const userEmailContent = await ejs.renderFile(path.join(__dirname, '..', 'views', 'quote-accepted-user.ejs'), {
+      userName: user.username,
+      clientName: client.name,
+      quoteLink: `http://localhost:8081/tools/quotes/view/${quote._id}`
+    });
+
+    const userMailOptions = {
+      from: 'quotes@bishal.au',
+      to: user.email, // Ensure this is correctly defined
+      subject: `Quote accepted by ${client.name}`,
+      html: userEmailContent
+    };
+    console.log('User email:', user.email);
+    console.log('User name:', user.username);
+
+
+
+    transporter.sendMail(userMailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email to user:', error);
+      } else {
+        console.log('User email sent:', info.response);
+      }
+    });
+
+    res.render('thank-you', {
+      layout: 'layout-public',
+      title: 'Thank You',
+      message: 'Thank you for accepting the quote. We will be in touch shortly. An update with the quote will be sent to you shortly.'
+    });
+  } catch (err) {
+    console.error('Error accepting quote:', err);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+// Handle quote acceptance
+router.get('/accept/:id', async (req, res) => {
+  try {
+    const quote = await Quote.findById(req.params.id);
+    if (!quote) {
+      return res.status(404).send('Quote not found');
+    }
+
+    quote.status = 'Accepted';
+    await quote.save();
+
+    req.flash('success_msg', 'Quote accepted successfully');
+    res.redirect(`/tools/quotes/view/${quote._id}`);
+  } catch (err) {
+    console.error('Error accepting quote:', err);
+    res.status(500).send('Server Error');
   }
 });
 
@@ -229,19 +354,6 @@ router.post('/service/add', async (req, res) => {
     res.json(newService);
   } else {
     res.sendStatus(401);
-  }
-});
-
-// View a quote
-router.get('/view/:id', async (req, res) => {
-  if (req.isAuthenticated()) {
-    const quote = await Quote.findById(req.params.id).populate('client').populate('user');
-    if (!quote) {
-      return res.status(404).send('Quote not found');
-    }
-    res.render('view-quote', { title: 'View Quote', user: req.user, quote });
-  } else {
-    res.redirect('/tools');
   }
 });
 

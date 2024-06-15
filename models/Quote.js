@@ -16,7 +16,8 @@ const QuoteSchema = new Schema({
   date: { type: Date, default: Date.now },
   status: { type: String, enum: ['Pending', 'Accepted', 'Rejected'], default: 'Pending' },
   pdfPath: { type: String, required: true },
-  quoteNumber: { type: String, required: true } // Add this field
+  quoteNumber: { type: String, required: true },
+  uniqueToken: { type: String, required: true, unique: true }
 });
 
 module.exports = mongoose.model('Quote', QuoteSchema);

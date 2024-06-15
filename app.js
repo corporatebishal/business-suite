@@ -6,7 +6,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const flash = require('connect-flash');
-const { connectDB } = require('./config/database');
+const { connectDB } = require('./config/database'); // Ensure this line correctly imports connectDB
 const User = require('./models/User');
 const clientsRouter = require('./routes/clients');
 const quotesRouter = require('./routes/quotes');
@@ -14,17 +14,15 @@ const expressLayouts = require('express-ejs-layouts');
 const settingsRouter = require('./routes/settings');
 const uploadsRouter = require('./routes/uploads');
 
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
 const app = express();
 const port = 8081;
 
 // Connect to MongoDB
-connectDB();
+connectDB(); // This should now correctly call the connectDB function
 
 // Middleware to parse POST request body
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.json()); // Add this line to handle JSON requests
 
 // Express session
 app.use(session({
@@ -45,10 +43,9 @@ app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
-  res.locals.user = req.user || null;
+  res.locals.user = req.user || null; // Make user available in all views
   next();
 });
-
 
 // Passport local strategy
 passport.use(new LocalStrategy(
@@ -67,33 +64,6 @@ passport.use(new LocalStrategy(
     }
   }
 ));
-
-// Google OAuth strategy
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback'
-},
-async (token, tokenSecret, profile, done) => {
-  try {
-    let user = await User.findOne({ googleId: profile.id });
-    if (!user) {
-      user = new User({
-        googleId: profile.id,
-        email: profile.emails[0].value,
-        oauthTokens: {
-          accessToken: token,
-          refreshToken: tokenSecret
-        },
-        // Add any other necessary fields here
-      });
-      await user.save();
-    }
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
 
 // Serialize user
 passport.serializeUser((user, done) => {
@@ -130,15 +100,6 @@ app.post('/tools/login', passport.authenticate('local', {
   failureFlash: true
 }));
 
-// Handle Google OAuth login
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/tools', failureFlash: true }),
-  (req, res) => {
-    res.redirect('/tools/dashboard');
-  });
-
 // Serve dashboard after successful login
 app.get('/tools/dashboard', (req, res) => {
   if (req.isAuthenticated()) {
@@ -154,9 +115,8 @@ app.use('/tools/clients', clientsRouter);
 // Quotes routes
 app.use('/tools/quotes', quotesRouter);
 
-app.use('/tools', settingsRouter); // Add this line
-app.use('/tools/uploads', uploadsRouter); // Add this line
-
+app.use('/tools', settingsRouter);
+app.use('/tools/uploads', uploadsRouter);
 
 // Start the server
 app.listen(port, () => {
