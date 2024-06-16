@@ -1,71 +1,224 @@
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .quote-container {
-      border: 1px solid #000;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .quote-container header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #000;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-      width: auto;
-    position: revert;
-    }
-    .quote-container .logo {
-      width: 100px;
-    }
-    .quote-container .details, .quote-container .address {
-      margin-bottom: 20px;
-    }
-    .quote-container .details div, .quote-container .address div {
-      margin-bottom: 5px;
-    }
-    .quote-container table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    .quote-container table, th, td {
-      border: 1px solid #000;
-    }
-    .quote-container th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    .quote-container th {
-      background-color: #f2f2f2;
-    }
-    .quote-container .total {
-      text-align: right;
-    }
-    .quote-container .footer {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .accept-button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 10px 2px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-  </style>
-    <a href="/tools/quotes/accept/<%= quote._id %>" class="accept-button">Accept Quote</a>
+<style>
+  
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .timeline-container, .quote-container {
+   
+    padding: 15px;
+    margin-bottom: 20px;
+    flex: 1;
+    max-width: 45%;
+    background: white;
+  }
+  .timeline-container {
+    margin-right: 20px;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .quote-container header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    width: auto;
+    left: unset;
+    top: unset;
+    position: unset;
+  }
+  .quote-container .logo {
+    width: 100px;
+  }
+  .quote-container .details, .quote-container .address {
+    margin-bottom: 20px;
+  }
+  .quote-container .details div, .quote-container .address div {
+    margin-bottom: 5px;
+  }
+  .quote-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  .quote-container table, th, td {
+    border: 1px solid #000;
+  }
+  .quote-container th, td {
+    padding: 10px;
+    text-align: left;
+  }
+  .quote-container th {
+    background-color: #f2f2f2;
+  }
+  .quote-container .total {
+    text-align: right;
+  }
+  .quote-container .footer {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .accept-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    font-size: 14px;
+    margin: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    flex-basis: fit-content;
+  }
+  .send-message-button {
+    background-color: #d3d3d3;
+    color: #000000;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 5px;
+    border:none;
+  }
+  .timeline {
+    list-style: none;
+    padding: 0;
+    position: relative;
+    margin-top: 20px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #c5c5c5;
+    transform: translateX(-50%);
+  }
+  .timeline li {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .timeline li.admin-action {
+    justify-content: flex-start;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: #4CAF50;
+    border-radius: 50%;
+    transform: translateX(-50%);
+  }
+  .timeline li .content {
+    padding: 10px;
+    border: 1px solid #c5c5c5;
+    border-radius: 5px;
+    position: relative;
+    width: calc(45% - 20px);
+    z-index: 1;
+  }
+  .timeline li.client-action .content {
+    background: #e9f7df; /* Light green for client actions */
+    text-align: right;
+    left: 0;
+  }
+  .timeline li.admin-action .content {
+    background: #dfe9f7; /* Light blue for admin actions */
+    text-align: left;
+    right: 0;
+  }
+  .timeline li .date {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .action-box, .message-box {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    left: 0;
+    padding: 10px 0;
+    background: #fff;
+    display: flex;
+  }
+  .action-box{
+    bottom:50px;
+  }
 
+  .message-box {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0;
+  }
+  .message-input {
+    width: calc(100% - 80px);
+    padding: 10px;
+    margin-right: 10px;
+  }
+</style>
+
+<div class="container">
+  <div class="timeline-container">
+    <h2>Timeline of Events</h2>
+    <ul class="timeline">
+      <li class="admin-action">
+        <div class="content">
+          <div class="date">Quote Created</div>
+          <div><%= new Date(quote.dateCreated).toLocaleString() %></div>
+        </div>
+      </li>
+      <li class="admin-action">
+        <div class="content">
+          <div class="date">Quote Sent</div>
+          <div><%= new Date(quote.dateSent).toLocaleString() %></div>
+        </div>
+      </li>
+      <% if (quote.dateViewed) { %>
+      <li class="client-action">
+        <div class="content">
+          <div class="date">Quote Viewed</div>
+          <div><%= new Date(quote.dateViewed).toLocaleString() %></div>
+        </div>
+      </li>
+      <% } %>
+      <% if (quote.dateAccepted) { %>
+      <li class="client-action">
+        <div class="content">
+          <div class="date">Quote Accepted</div>
+          <div><%= new Date(quote.dateAccepted).toLocaleString() %></div>
+        </div>
+      </li>
+      <% } %>
+      <% if (quote.isInvoiceCreated) { %>
+        <li class="admin-action">
+          <div class="content">
+            <div class="date">Invoice Created and Sent</div>
+            <div><%= new Date(quote.invoiceCreated).toLocaleString() %></div>
+          </div>
+        </li>
+        <% } %>
+    </ul>
+    <div class="action-box">
+      <a href="/tools/quotes/accept/<%= quote._id %>" class="accept-button">Accept Quote</a>
+      <a href="/tools/quotes/modify/<%= quote._id %>" class="accept-button">Modify Cost</a>
+      <a href="/tools/quotes/invoice/<%= quote._id %>" class="accept-button">Create Invoice</a>
+    </div>
+    <div class="message-box">
+      <input type="text" placeholder="Type your message here..." class="message-input">
+      <button class="send-message-button">Send Update</button>
+    </div>
+  </div>
   <div class="quote-container">
-    
     <header>
       <div>
         <img src="/tools/uploads/<%= businessDetails.businessLogo %>" class="logo" alt="Business Logo">
@@ -73,7 +226,7 @@
       </div>
       <div>
         <p>QUOTE No.: <%= quote.quoteNumber %></p>
-        <p>DATE: <%= new Date(quote.date).toLocaleDateString() %></p>
+        <p>DATE: <%= new Date(quote.dateCreated).toLocaleDateString() %></p>
       </div>
     </header>
     <div class="address">
@@ -98,12 +251,12 @@
       </thead>
       <tbody>
         <% quote.services.forEach((service) => { %>
-          <tr>
-            <td><%= service.name %></td>
-            <td>1</td>
-            <td>$<%= parseFloat(service.price).toFixed(2) %></td>
-            <td>$<%= parseFloat(service.price).toFixed(2) %></td>
-          </tr>
+        <tr>
+          <td><%= service.name %></td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
         <% }); %>
       </tbody>
     </table>
@@ -120,4 +273,4 @@
       <p>Bank Name: <%= paymentDetails.bankName %></p>
     </div>
   </div>
-  <a href="/tools/quotes/accept/<%= quote._id %>" class="accept-button">Accept Quote</a>
+</div>

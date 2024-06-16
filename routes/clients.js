@@ -6,7 +6,7 @@ const Client = require('../models/Client');
 router.get('/', async (req, res) => {
   if (req.isAuthenticated()) {
     const clients = await Client.find();
-    res.render('clients', { title: 'Clients', user: req.user, clients: clients });
+    res.render('clients', { title: 'Clients', user: req.user, clients: clients, currentRoute: '/tools/clients' });
   } else {
     res.redirect('/tools');
   }
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // Add client form
 router.get('/add', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('add-client', { title: 'Add Client', user: req.user });
+    res.render('add-client', { title: 'Add Client', user: req.user,currentRoute: '/tools/clients/add' });
   } else {
     res.redirect('/tools');
   }
@@ -51,7 +51,7 @@ router.get('/:id', async (req, res) => {
   if (req.isAuthenticated()) {
     const client = await Client.findById(req.params.id);
     if (client) {
-      res.render('view-client', { title: 'View Client', user: req.user, client: client });
+      res.render('view-client', { title: 'View Client', user: req.user, client: client, currentRoute: '/tools/clients' });
     } else {
       res.send('Client not found');
     }

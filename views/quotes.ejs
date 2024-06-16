@@ -31,6 +31,31 @@
   .delete-quote {
     background-color: #d9534f;
   }
+  .create-invoice-button{
+    background-color: #15a350;
+
+  }
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+  }
+  .status-pending {
+    background-color: gray;
+  }
+  .status-accepted {
+    background-color: green;
+  }
+  .bell-icon {
+    font-size: 1.2em;
+    color: orange;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  th,td{
+    text-align:left;
+  }
 </style>
 
 <h2>Quotes</h2>
@@ -50,7 +75,7 @@
     </tr>
   </thead>
   <tbody>
-    <% quotes.forEach(quote => { %>
+    <% quotes.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(quote => { %>
       <tr>
         <td><%= quote.quoteNumber %></td>
         <td><%= quote.client.name %></td>
@@ -62,12 +87,22 @@
         </td>
         <td>$<%= quote.totalAmount %></td>
         <td><%= new Date(quote.date).toLocaleDateString() %></td>
-        <td><%= quote.status %></td>
+        <td>
+          <span class="status-badge <%= quote.status === 'Pending' ? 'status-pending' : 'status-accepted' %>"><%= quote.status %></span>
+          <% if (quote.isViewed) { %>
+            <a href="/tools/quotes/view/<%= quote._id %>" style="text-decoration: none;"><span class="bell-icon">&#128276;</span></a>
+          <% } %>
+        </td>
         <td><%= quote.user.username %></td>
         <td class="action-buttons">
+          <% if (quote.status === 'Accepted') { %>
+            <a href="/tools/invoices/create/<%= quote._id %>" class="create-invoice-button">Create Invoice</a>
+          <% } else { %>
+            <a href="/tools/quotes/resend/<%= quote._id %>" class="resend-quote">Resend</a>
+          <% } %>
+        
           <a href="/tools/quotes/view/<%= quote._id %>" class="view-quote">View</a>
           <a href="<%= quote.pdfPath %>" class="download-quote" target="_blank">Download</a>
-          <a href="/tools/quotes/resend/<%= quote._id %>" class="resend-quote">Resend</a>
           <form action="/tools/quotes/delete/<%= quote._id %>" method="post" onsubmit="return confirm('Are you sure you want to delete this quote?');">
             <button type="submit" class="delete-quote">Delete</button>
           </form>

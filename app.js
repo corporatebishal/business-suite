@@ -13,6 +13,7 @@ const quotesRouter = require('./routes/quotes');
 const expressLayouts = require('express-ejs-layouts');
 const settingsRouter = require('./routes/settings');
 const uploadsRouter = require('./routes/uploads');
+const invoiceRoutes = require('./routes/invoices');
 
 const app = express();
 const port = 8081;
@@ -35,6 +36,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
 // Connect flash
 app.use(flash());
 
@@ -44,6 +47,8 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   res.locals.user = req.user || null; // Make user available in all views
+  res.locals.currentRoute = req.originalUrl;
+
   next();
 });
 
@@ -103,7 +108,7 @@ app.post('/tools/login', passport.authenticate('local', {
 // Serve dashboard after successful login
 app.get('/tools/dashboard', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('dashboard', { layout: 'layout', title: 'Dashboard', user: req.user });
+    res.render('dashboard', { layout: 'layout', title: 'Dashboard', user: req.user,currentRoute: '/tools/dashboard' });
   } else {
     res.redirect('/tools');
   }
@@ -117,6 +122,11 @@ app.use('/tools/quotes', quotesRouter);
 
 app.use('/tools', settingsRouter);
 app.use('/tools/uploads', uploadsRouter);
+
+
+app.use('/tools/invoices', invoiceRoutes);
+
+
 
 // Start the server
 app.listen(port, () => {

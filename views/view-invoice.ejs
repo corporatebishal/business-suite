@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <style>
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .timeline-container, .invoice-container {
+      padding: 15px;
+      margin-bottom: 20px;
+      flex: 1;
+      max-width: 45%;
+      background: white;
+    }
+    .timeline-container {
+      margin-right: 20px;
+      position: relative;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .invoice-container header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      width: auto;
+      left: unset;
+      top: unset;
+      position: unset;
+    }
+    .invoice-container .logo {
+      width: 100px;
+    }
+    .invoice-container .details, .invoice-container .address {
+      margin-bottom: 20px;
+    }
+    .invoice-container .details div, .invoice-container .address div {
+      margin-bottom: 5px;
+    }
+    .invoice-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .invoice-container table, th, td {
+      border: 1px solid #000;
+    }
+    .invoice-container th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    .invoice-container th {
+      background-color: #f2f2f2;
+    }
+    .invoice-container .total {
+      text-align: right;
+    }
+    .invoice-container .footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .timeline {
+      list-style: none;
+      padding: 0;
+      position: relative;
+      margin-top: 20px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #c5c5c5;
+      transform: translateX(-50%);
+    }
+    .timeline li {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .timeline li.admin-action {
+      justify-content: flex-start;
+    }
+    .timeline li::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      background: #4CAF50;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .timeline li .content {
+      padding: 10px;
+      border: 1px solid #c5c5c5;
+      border-radius: 5px;
+      position: relative;
+      width: calc(45% - 20px);
+      z-index: 1;
+    }
+    .timeline li.client-action .content {
+      background: #e9f7df; /* Light green for client actions */
+      text-align: right;
+      left: 0;
+    }
+    .timeline li.admin-action .content {
+      background: #dfe9f7; /* Light blue for admin actions */
+      text-align: left;
+      right: 0;
+    }
+    .timeline li .date {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="timeline-container">
+      <h2>Timeline of Events</h2>
+      <ul class="timeline">
+        <li class="admin-action">
+            <div class="content">
+              <div class="date">Quote Created</div>
+              <div><%= new Date(quote.dateCreated).toLocaleString() %></div>
+            </div>
+          </li>
+          <li class="admin-action">
+            <div class="content">
+              <div class="date">Quote Sent</div>
+              <div><%= new Date(quote.dateSent).toLocaleString() %></div>
+            </div>
+          </li>
+          <% if (quote.dateViewed) { %>
+          <li class="client-action">
+            <div class="content">
+              <div class="date">Quote Viewed</div>
+              <div><%= new Date(quote.dateViewed).toLocaleString() %></div>
+            </div>
+          </li>
+          <% } %>
+          <% if (quote.dateAccepted) { %>
+          <li class="client-action">
+            <div class="content">
+              <div class="date">Quote Accepted</div>
+              <div><%= new Date(quote.dateAccepted).toLocaleString() %></div>
+            </div>
+          </li>
+          <% } %>
+          <% if (quote.isInvoiceCreated) { %>
+            <li class="admin-action">
+              <div class="content">
+                <div class="date">Invoice Created and Sent</div>
+                <div><%= new Date(quote.invoiceCreated).toLocaleString() %></div>
+              </div>
+            </li>
+            <% } %>
+        <li class="admin-action">
+          <div class="content">
+            <div class="date">Invoice Created</div>
+            <div><%= new Date(invoice.createdAt).toLocaleString() %></div>
+          </div>
+        </li>
+        <% if (invoice.dateSent) { %>
+        <li class="admin-action">
+          <div class="content">
+            <div class="date">Invoice Sent</div>
+            <div><%= new Date(invoice.dateSent).toLocaleString() %></div>
+          </div>
+        </li>
+        <% } %>
+        <% if (invoice.dateViewed) { %>
+        <li class="client-action">
+          <div class="content">
+            <div class="date">Invoice Viewed</div>
+            <div><%= new Date(invoice.dateViewed).toLocaleString() %></div>
+          </div>
+        </li>
+        <% } %>
+        <% if (invoice.datePaid) { %>
+        <li class="client-action">
+          <div class="content">
+            <div class="date">Invoice Paid</div>
+            <div><%= new Date(invoice.datePaid).toLocaleString() %></div>
+          </div>
+        </li>
+        <% } %>
+      </ul>
+    </div>
+    <div class="invoice-container">
+      <header>
+        <div>
+          <img src="/tools/uploads/<%= businessDetails.businessLogo %>" class="logo" alt="Business Logo">
+          <h2>Invoice</h2>
+        </div>
+        <div>
+          <p>INVOICE No.: <%= invoice.quote.quoteNumber.replace('QN', 'IN') %></p>
+          <p>DATE: <%= new Date(invoice.createdAt).toLocaleDateString() %></p>
+          <p>DUE DATE: <%= new Date(invoice.dueDate).toLocaleDateString() %></p>
+        </div>
+      </header>
+      <div class="address">
+        <h3>To:</h3>
+        <div><strong><%= invoice.client.name %></strong></div>
+        <div><%= invoice.quote.clientBusinessName %></div>
+        <div><%= invoice.client.address %></div>
+      </div>
+      <div class="details">
+        <h3>Billing Address:</h3>
+        <div><%= businessDetails.billingAddress %></div>
+        <div>ABN: <%= businessDetails.businessABN %></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Amount (AUD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% invoice.quote.services.forEach((service) => { %>
+          <tr>
+            <td><%= service.name %></td>
+            <td>1</td>
+            <td>$<%= parseFloat(service.price).toFixed(2) %></td>
+            <td>$<%= parseFloat(service.price).toFixed(2) %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <div class="total">
+        <p>Subtotal: $<%= parseFloat(invoice.quote.totalAmount).toFixed(2) %></p>
+        <p>GST: $<%= (invoice.quote.totalAmount * 0.1).toFixed(2) %></p>
+        <h3>Total: $<%= (invoice.quote.totalAmount * 1.1).toFixed(2) %></h3>
+      </div>
+      <div class="footer">
+        <h4>Payment Methods</h4>
+        <div class="payment-preview">
+          <% (Array.isArray(invoice.paymentMethods) ? invoice.paymentMethods : invoice.paymentMethods.split(', ')).forEach(method => { %>
+            <% if (method === 'Bank Transfer') { %>
+              <div>
+                <h4>Bank Transfer</h4>
+                <p>Account Name: <%= paymentDetails.accountName %></p>
+                <p>BSB: <%= paymentDetails.bsb %></p>
+                <p>Account Number: <%= paymentDetails.accountNumber %></p>
+              </div>
+            <% } else if (method === 'PayPal') { %>
+              <div>
+                <h4>PayPal</h4>
+                <p>PayPal Account: <%= paymentDetails.paypalAccount %></p>
+              </div>
+            <% } else if (method === 'Online Payment') { %>
+              <div>
+                <h4>Online Payment</h4>
+                <button>Pay Now</button>
+              </div>
+            <% } else if (method === 'BSB') { %>
+              <div>
+                <h4>BSB</h4>
+                <p>BSB: <%= paymentDetails.bsb %></p>
+              </div>
+            <% } %>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

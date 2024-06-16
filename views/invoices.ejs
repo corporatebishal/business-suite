@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="/styles.css">
+  <h2>Invoices</h2>
+  <a href="/tools/invoices/create">Create Invoice</a>
+  <table id="invoicesTable" class="display">
+    <thead>
+      <tr>
+        <th>Invoice ID</th>
+        <th>Client</th>
+        <th>Quote ID</th>
+        <th>Due Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% invoices.forEach(function(invoice) { %>
+        <tr>
+          <td><%= invoice._id %></td>
+          <td><%= invoice.client.name %></td>
+          <td><%= invoice.quote._id %></td>
+          <td><%= invoice.dueDate %></td>
+          <td><%= invoice.status %></td>
+          <td><a href="/tools/invoices/view/<%= invoice._id %>">View</a></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+ 
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+  <script>
+    $(document).ready( function () {
+      $('#invoicesTable').DataTable();
+    });
+  </script>

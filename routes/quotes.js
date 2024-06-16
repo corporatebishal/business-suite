@@ -14,6 +14,7 @@ const User = require('../models/User');
 const BusinessDetails = require('../models/BusinessDetails');
 const PaymentDetails = require('../models/PaymentDetails');
 
+
 // Setup Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: 'smtp.dreamhost.com',
@@ -36,7 +37,7 @@ function generateQuoteNumber(businessName, lastQuoteNumber) {
 router.get('/', async (req, res) => {
   if (req.isAuthenticated()) {
     const quotes = await Quote.find({ company: req.user.company }).sort({ date: -1 }).populate('client').populate('user');
-    res.render('quotes', { title: 'Quotes', user: req.user, quotes });
+    res.render('quotes', { title: 'Quotes', user: req.user, quotes,currentRoute: '/tools/quotes' });
   } else {
     res.redirect('/tools');
   }
@@ -60,7 +61,8 @@ router.get('/add', async (req, res) => {
       services,
       businessDetails,
       paymentDetails,
-      newQuoteNumber
+      newQuoteNumber,
+      currentRoute: '/tools/quotes/add'
     });
   } else {
     res.redirect('/tools');
@@ -97,7 +99,9 @@ router.post('/add', async (req, res) => {
         company: req.user.company,
         pdfPath,
         quoteNumber,
-        uniqueToken
+        uniqueToken,
+        dateCreated: new Date(),
+        dateSent: sendEmail ? new Date() : null
       });
       await newQuote.save();
 
@@ -177,7 +181,8 @@ router.get('/view/:id', async (req, res) => {
         quote,
         client: await Client.findById(quote.client),
         businessDetails,
-        paymentDetails
+        paymentDetails,
+        currentRoute: '/tools/quotes/view'
       });
     } catch (err) {
       console.error('Error viewing quote:', err);
@@ -195,6 +200,10 @@ router.get('/view-token/:token', async (req, res) => {
     if (!quote) {
       return res.status(404).send('Quote not found');
     }
+
+    quote.dateViewed = new Date();
+    quote.isViewed = true;
+    await quote.save();
 
     const businessDetails = await BusinessDetails.findOne({ user: quote.user._id });
     const paymentDetails = await PaymentDetails.findOne({ user: quote.user._id });
@@ -222,6 +231,7 @@ router.get('/accept-token/:token', async (req, res) => {
     }
 
     quote.status = 'Accepted';
+    quote.dateAccepted = new Date();
     await quote.save();
 
     // Notify client
@@ -259,14 +269,10 @@ router.get('/accept-token/:token', async (req, res) => {
 
     const userMailOptions = {
       from: 'quotes@bishal.au',
-      to: user.email, // Ensure this is correctly defined
+      to: user.email,
       subject: `Quote accepted by ${client.name}`,
       html: userEmailContent
     };
-    console.log('User email:', user.email);
-    console.log('User name:', user.username);
-
-
 
     transporter.sendMail(userMailOptions, (error, info) => {
       if (error) {
@@ -287,7 +293,6 @@ router.get('/accept-token/:token', async (req, res) => {
   }
 });
 
-
 // Handle quote acceptance
 router.get('/accept/:id', async (req, res) => {
   try {
@@ -297,6 +302,7 @@ router.get('/accept/:id', async (req, res) => {
     }
 
     quote.status = 'Accepted';
+    quote.dateAccepted = new Date();
     await quote.save();
 
     req.flash('success_msg', 'Quote accepted successfully');
@@ -384,5 +390,20 @@ router.get('/resend/:id', async (req, res) => {
     res.redirect('/tools');
   }
 });
+
+// Get quote details by ID
+router.get('/:quoteId', async (req, res) => {
+  try {
+    const quote = await Quote.findById(req.params.quoteId).populate('client');
+    if (!quote) {
+      return res.status(404).send('Quote not found');
+    }
+    res.json(quote);
+  } catch (error) {
+    console.error('Error fetching quote:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 module.exports = router;
