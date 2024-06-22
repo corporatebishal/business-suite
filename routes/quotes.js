@@ -14,7 +14,6 @@ const User = require('../models/User');
 const BusinessDetails = require('../models/BusinessDetails');
 const PaymentDetails = require('../models/PaymentDetails');
 
-
 // Setup Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: 'smtp.dreamhost.com',
@@ -37,7 +36,7 @@ function generateQuoteNumber(businessName, lastQuoteNumber) {
 router.get('/', async (req, res) => {
   if (req.isAuthenticated()) {
     const quotes = await Quote.find({ company: req.user.company }).sort({ date: -1 }).populate('client').populate('user');
-    res.render('quotes', { title: 'Quotes', user: req.user, quotes,currentRoute: '/tools/quotes' });
+    res.render('quotes', { title: 'Quotes', user: req.user, quotes, currentRoute: '/tools/quotes' });
   } else {
     res.redirect('/tools');
   }
@@ -50,7 +49,7 @@ router.get('/add', async (req, res) => {
     const services = await Service.find({ company: req.user.company });
     const businessDetails = await BusinessDetails.findOne({ user: req.user._id });
     const paymentDetails = await PaymentDetails.findOne({ user: req.user._id });
-    const lastQuote = await Quote.findOne({ company: req.user.company }).sort({ date: -1 });
+    const lastQuote = await Quote.findOne({ company: req.user.company }).sort({ dateCreated: -1 });
 
     const newQuoteNumber = generateQuoteNumber(businessDetails.businessName, lastQuote ? lastQuote.quoteNumber : null);
 
@@ -134,6 +133,7 @@ router.post('/add', async (req, res) => {
         const emailContent = await ejs.renderFile(path.join(__dirname, '..', 'views', 'quote-email-template.ejs'), {
           clientName: clientDetails.name,
           businessName: businessDetails.businessName,
+          quoteNumber: newQuote.quoteNumber,
           quoteLink: `http://localhost:8081/tools/quotes/view-token/${newQuote.uniqueToken}`,
           acceptLink: `http://localhost:8081/tools/quotes/accept-token/${newQuote.uniqueToken}`
         });
@@ -141,7 +141,7 @@ router.post('/add', async (req, res) => {
         const mailOptions = {
           from: 'quotes@bishal.au',
           to: clientDetails.email,
-          subject: `RE: Quote received from ${businessDetails.businessName}`,
+          subject: `RE: Quote received from ${businessDetails.businessName} - #${quoteNumber}`,
           html: emailContent
         };
 
@@ -404,6 +404,5 @@ router.get('/:quoteId', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 module.exports = router;

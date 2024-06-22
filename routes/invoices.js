@@ -17,6 +17,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Helper function to generate the invoice number
+function generateInvoiceNumber(businessName, quoteNumber) {
+  const initials = businessName.split(' ').map(word => word[0]).join('');
+  const quoteNumberPart = quoteNumber.replace(/^\D+/g, ''); // Extract the numeric part of the quote number
+  return `IN${initials}${quoteNumberPart}`;
+}
+
 // List all invoices
 router.get('/', async (req, res) => {
   if (req.isAuthenticated()) {
@@ -41,9 +48,9 @@ router.get('/create/:quoteId?', async (req, res) => {
       return res.redirect('/tools/invoices');
     }
 
-    console.log('Rendering create-invoice page with data:', { quotes, quote, businessDetails, paymentDetails });
+    console.log('Rendering create-invoice page with data:', { quotes, selectedQuote: quote, businessDetails, paymentDetails });
 
-    res.render('create-invoice', { title: 'Create Invoice', user: req.user, quotes, quote, businessDetails, paymentDetails });
+    res.render('create-invoice', { title: 'Create Invoice', user: req.user, quotes, selectedQuote: quote, businessDetails, paymentDetails });
   } catch (error) {
     console.error('Error fetching data:', error);
     res.status(500).send('Internal Server Error');
@@ -62,6 +69,9 @@ router.post('/create', async (req, res) => {
       return res.status(400).json({ error: 'Quote not found' });
     }
 
+    const businessDetails = await BusinessDetails.findOne({ user: req.user._id });
+    const invoiceNumber = generateInvoiceNumber(businessDetails.businessName, quote.quoteNumber);
+
     console.log('Creating new invoice...');
     const newInvoice = new Invoice({
       client: quote.client._id,
@@ -71,7 +81,8 @@ router.post('/create', async (req, res) => {
       paymentMethods,
       status: 'Pending',
       user: req.user._id,
-      company: req.user.company
+      company: req.user.company,
+      invoiceNumber
     });
 
     await newInvoice.save();
@@ -90,14 +101,14 @@ router.post('/create', async (req, res) => {
     await transporter.sendMail({
       from: 'quotes@bishal.au',
       to: quote.client.email,
-      subject: 'Invoice Created',
+      subject: `You have received a new invoice #${newInvoice.invoiceNumber} from ${businessDetails.businessName}`,
       html: clientEmailContent,
     });
 
     await transporter.sendMail({
       from: 'quotes@bishal.au',
       to: req.user.email,
-      subject: 'Invoice Created',
+      subject: `Invoice #${newInvoice.invoiceNumber} created and sent to your client`,
       html: userEmailContent,
     });
 
@@ -111,31 +122,30 @@ router.post('/create', async (req, res) => {
 
 // View invoice page
 router.get('/view/:invoiceId', async (req, res) => {
-    try {
-      console.log('Fetching data for viewing invoice page...');
-      const invoice = await Invoice.findById(req.params.invoiceId).populate('client').populate('quote');
-      
-      if (!invoice) {
-        req.flash('error_msg', 'Invoice not found');
-        return res.redirect('/tools/invoices');
-      }
-  
-      const quote = await Quote.findById(invoice.quote._id).populate('client');
-      if (!quote) {
-        return res.status(404).send('Quote not found');
-      }
-  
-      const businessDetails = await BusinessDetails.findOne({ user: req.user._id });
-      const paymentDetails = await PaymentDetails.findOne({ user: req.user._id });
-  
-      console.log('Rendering view-invoice page with data:', { invoice, quote, businessDetails, paymentDetails });
-  
-      res.render('view-invoice', { title: 'View Invoice', user: req.user, invoice, quote, businessDetails, paymentDetails });
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      res.status(500).send('Internal Server Error');
+  try {
+    console.log('Fetching data for viewing invoice page...');
+    const invoice = await Invoice.findById(req.params.invoiceId).populate('client').populate('quote');
+    
+    if (!invoice) {
+      req.flash('error_msg', 'Invoice not found');
+      return res.redirect('/tools/invoices');
     }
-  });
-  
+
+    const quote = await Quote.findById(invoice.quote._id).populate('client');
+    if (!quote) {
+      return res.status(404).send('Quote not found');
+    }
+
+    const businessDetails = await BusinessDetails.findOne({ user: req.user._id });
+    const paymentDetails = await PaymentDetails.findOne({ user: req.user._id });
+
+    console.log('Rendering view-invoice page with data:', { invoice, quote, businessDetails, paymentDetails });
+
+    res.render('view-invoice', { title: 'View Invoice', user: req.user, invoice, quote, businessDetails, paymentDetails });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 module.exports = router;

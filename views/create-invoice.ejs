@@ -89,6 +89,9 @@
     }
     .payment-preview div {
       margin-bottom: 10px;
+      display: inline-block; /* Display payment methods in a row */
+      margin-right: 20px; /* Add some space between them */
+      vertical-align:top;
     }
   </style>
 </head>
@@ -101,7 +104,7 @@
           <label for="quoteId">Quote</label>
           <select id="quoteId" name="quoteId" required>
             <% quotes.forEach((quote) => { %>
-              <option value="<%= quote._id %>"><%= quote.quoteNumber %> - <%= quote.client.name %></option>
+              <option value="<%= quote._id %>" <%= selectedQuote && selectedQuote._id.toString() === quote._id.toString() ? 'selected' : '' %>><%= quote.quoteNumber %> - <%= quote.client.name %></option>
             <% }) %>
           </select>
         </div>

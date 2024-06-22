@@ -114,6 +114,15 @@
     nav ul li ul li a {
       padding: 10px 20px;
     }
+    .nav-expand::after {
+      content: '+';
+      float: right;
+      transition: transform 0.3s;
+    }
+    .nav-expand.active::after {
+      content: '-';
+      transform: rotate(180deg);
+    }
     main {
       margin-left: 250px;
       padding: 0px 20px;
@@ -159,30 +168,30 @@
     <ul>
       <li><a href="/tools/dashboard" class="<%= currentRoute === '/tools/dashboard' ? 'active' : '' %>">Dashboard</a></li>
       <li class="<%= currentRoute.startsWith('/tools/clients') ? 'active' : '' %>">
-        <a href="javascript:void(0)">Clients</a>
+        <a href="javascript:void(0)" class="nav-expand">Clients</a>
         <ul>
           <li><a href="/tools/clients" class="<%= currentRoute === '/tools/clients' ? 'active' : '' %>">View All Clients</a></li>
           <li><a href="/tools/clients/add" class="<%= currentRoute === '/tools/clients/add' ? 'active' : '' %>">Add New Client</a></li>
         </ul>
       </li>
       <li class="<%= currentRoute.startsWith('/tools/quotes') ? 'active' : '' %>">
-        <a  href="javascript:void(0)" >Quotes</a>
+        <a href="javascript:void(0)" class="nav-expand">Quotes</a>
         <ul>
           <li><a href="/tools/quotes" class="<%= currentRoute === '/tools/quotes' ? 'active' : '' %>">View All Quotes</a></li>
           <li><a href="/tools/quotes/add" class="<%= currentRoute === '/tools/quotes/add' ? 'active' : '' %>">Add New Quote</a></li>
         </ul>
       </li>
       <li class="<%= currentRoute.startsWith('/tools/invoices') ? 'active' : '' %>">
-        <a  href="javascript:void(0)" >Invoices</a>
+        <a href="javascript:void(0)" class="nav-expand">Invoices</a>
         <ul>
           <li><a href="/tools/invoices" class="<%= currentRoute === '/tools/invoices' ? 'active' : '' %>">View All Invoices</a></li>
           <li><a href="/tools/invoices/create" class="<%= currentRoute === '/tools/invoices/create' ? 'active' : '' %>">Create New Invoice</a></li>
         </ul>
       </li>
-            <li><a href="/tools/marketing" class="<%= currentRoute === '/tools/marketing' ? 'active' : '' %>">Marketing</a></li>
+      <li><a href="/tools/marketing" class="<%= currentRoute === '/tools/marketing' ? 'active' : '' %>">Marketing</a></li>
       <li><a href="/tools/accounts" class="<%= currentRoute === '/tools/accounts' ? 'active' : '' %>">Tax Preparation</a></li>
       <li class="<%= currentRoute.startsWith('/tools/business-details') || currentRoute.startsWith('/tools/payment-details') ? 'active' : '' %>">
-        <a href="javascript:void(0)">Business Settings</a>
+        <a href="javascript:void(0)" class="nav-expand">Business Settings</a>
         <ul>
           <li><a href="/tools/business-details" class="<%= currentRoute === '/tools/business-details' ? 'active' : '' %>">Business Details</a></li>
           <li><a href="/tools/payment-details" class="<%= currentRoute === '/tools/payment-details' ? 'active' : '' %>">Payment Details</a></li>
@@ -207,5 +216,16 @@
     <%- body %>
   </main>
   <script src="/scripts.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.nav-expand').forEach(item => {
+        item.addEventListener('click', () => {
+          const parentLi = item.parentElement;
+          parentLi.classList.toggle('active');
+          item.classList.toggle('active');
+        });
+      });
+    });
+  </script>
 </body>
 </html>

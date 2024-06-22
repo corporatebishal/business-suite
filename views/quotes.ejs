@@ -33,7 +33,6 @@
   }
   .create-invoice-button{
     background-color: #15a350;
-
   }
   .status-badge {
     padding: 5px 10px;
@@ -86,7 +85,7 @@
           <% }); %>-->
         </td>
         <td>$<%= quote.totalAmount %></td>
-        <td><%= new Date(quote.date).toLocaleDateString() %></td>
+        <td><%= new Date(quote.dateCreated).toLocaleDateString() %></td>
         <td>
           <span class="status-badge <%= quote.status === 'Pending' ? 'status-pending' : 'status-accepted' %>"><%= quote.status %></span>
           <% if (quote.isViewed) { %>
@@ -96,7 +95,11 @@
         <td><%= quote.user.username %></td>
         <td class="action-buttons">
           <% if (quote.status === 'Accepted') { %>
-            <a href="/tools/invoices/create/<%= quote._id %>" class="create-invoice-button">Create Invoice</a>
+            <% if (quote.isInvoiceCreated) { %>
+              <a href="/tools/invoices/view/<%= quote.invoice._id %>" class="create-invoice-button">View Invoice</a>
+            <% } else { %>
+              <a href="/tools/invoices/create/<%= quote._id %>" class="create-invoice-button">Create Invoice</a>
+            <% } %>
           <% } else { %>
             <a href="/tools/quotes/resend/<%= quote._id %>" class="resend-quote">Resend</a>
           <% } %>
@@ -107,6 +110,7 @@
             <button type="submit" class="delete-quote">Delete</button>
           </form>
         </td>
+        
       </tr>
     <% }); %>
   </tbody>

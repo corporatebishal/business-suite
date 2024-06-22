@@ -6,13 +6,12 @@ const invoiceSchema = new Schema({
   quote: { type: Schema.Types.ObjectId, ref: 'Quote', required: true },
   dueDate: { type: Date, required: true },
   taskCompletionDate: { type: Date, required: true },
-  paymentMethods: [{ type: String, required: true }],
+  paymentMethods: { type: [String], required: true },
   status: { type: String, default: 'Pending' },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   company: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
-  createdAt: { type: Date, default: Date.now }
+  invoiceNumber: { type: String, required: true },
+  dateCreated: { type: Date, default: Date.now }
 });
 
-const Invoice = mongoose.model('Invoice', invoiceSchema);
-
-module.exports = Invoice;
+module.exports = mongoose.model('Invoice', invoiceSchema);

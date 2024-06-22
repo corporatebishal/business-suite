@@ -120,6 +120,11 @@
       font-weight: bold;
       margin-bottom: 5px;
     }
+    .payment-preview div {
+      margin-bottom: 10px;
+      display: inline-block; /* Display payment methods in a row */
+      margin-right: 20px; /* Add some space between them */
+    }
   </style>
 </head>
 <body>
@@ -166,7 +171,7 @@
         <li class="admin-action">
           <div class="content">
             <div class="date">Invoice Created</div>
-            <div><%= new Date(invoice.createdAt).toLocaleString() %></div>
+            <div><%= new Date(invoice.dateCreated).toLocaleString() %></div>
           </div>
         </li>
         <% if (invoice.dateSent) { %>
@@ -202,9 +207,9 @@
           <h2>Invoice</h2>
         </div>
         <div>
-          <p>INVOICE No.: <%= invoice.quote.quoteNumber.replace('QN', 'IN') %></p>
-          <p>DATE: <%= new Date(invoice.createdAt).toLocaleDateString() %></p>
-          <p>DUE DATE: <%= new Date(invoice.dueDate).toLocaleDateString() %></p>
+          <p>INVOICE No.: <%= invoice.invoiceNumber %></p>
+          <p>DATE: <%= new Date(invoice.dateCreated).toLocaleDateString() %></p>
+          <p><b>DUE DATE: <%= new Date(invoice.dueDate).toLocaleDateString() %></b></p>
         </div>
       </header>
       <div class="address">
